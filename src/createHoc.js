@@ -229,11 +229,17 @@ export default (stylesOrCreator, InnerComponent, options = {}) => {
   }
 
   function forwardRef(props, ref) {
+    if (React.forwardRef && ref) {
+      return (
+        <Jss
+          {...props}
+          innerRef={ref}
+        />
+      )
+    }
+
     return (
-      <Jss
-        {...props}
-        innerRef={ref}
-      />
+      <Jss {...props} />
     )
   }
 
