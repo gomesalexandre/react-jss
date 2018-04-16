@@ -3,7 +3,7 @@
 [![Gitter](https://badges.gitter.im/JoinChat.svg)](https://gitter.im/cssinjs/lobby)
 [![Build Status](https://travis-ci.org/cssinjs/react-kss.svg?branch=master)](https://travis-ci.org/cssinjs/react-jss)
 
-React-JSS provides components for [JSS](https://github.com/cssinjs/jss) as a layer of abstraction. JSS and [presets](https://github.com/cssinjs/jss-preset-default) are already built in! Try it out in the [playground](https://codesandbox.io/s/j3l06yyqpw).
+React-JSS provides components for [JSS](https://github.com/cssinjs/jss) as a layer of abstraction. JSS and the [default preset](https://github.com/cssinjs/jss-preset-default) are already built in! Try it out in the [playground](https://codesandbox.io/s/j3l06yyqpw).
 
 Benefits compared to lower level core:
 
@@ -19,6 +19,7 @@ Benefits compared to lower level core:
 * [Install](#install)
 * [Usage](#usage)
   * [Basic](#basic)
+  * [Dynamic Values](#dynamic-values)
   * [Theming](#theming)
   * [Server-side rendering](#server-side-rendering)
   * [Reuse styles in different components](#reuse-styles-in-different-components)
@@ -35,68 +36,156 @@ Benefits compared to lower level core:
 npm install --save react-jss
 ```
 
+```
+yarn add react-jss
+```
+
 ## Usage
 
 React-JSS wraps your component with a [higher-order component](https://medium.com/@dan_abramov/mixins-are-dead-long-live-higher-order-components-94a0d2f9e750).
-It injects a `classes` prop, which is a simple map of rule names and generated class names. It can act both as a simple wrapping function and as an [ES7 decorator](https://github.com/wycats/javascript-decorators)
-
-### Example
+It injects a `classes` prop, which is a simple map of rule names and generated class names. It can act both as a simple wrapping function and as an [ES7 decorator](https://github.com/wycats/javascript-decorators).
 
 Try it out in the [playground](https://codesandbox.io/s/j3l06yyqpw).
 
+### Basic
+
 ```javascript
 import React from 'react'
+import { render } from 'react-dom'
+// Import React-JSS
 import injectSheet from 'react-jss'
 
+// Create your Styles. Remember, since React-JSS uses the default preset,
+// most plugins are available without further configuration needed.
 const styles = {
-  button: {
-    background: props => props.color
-  },
-  label: {
-    fontWeight: 'bold'
+  myButton: {
+    color: 'green',
+    margin: { // jss-expand gives more readable syntax
+      top: 5, // jss-default-unit makes this 5px
+      right: 0,
+      bottom: 0,
+      left: '1rem'
+    },
+    '& .myLabel': { // jss-nested applies this to a child .myLabel
+      fontWeight: 'bold' // jss-camel-case turns this into 'font-weight'
+    }
   }
 }
 
-const Button = ({classes, children}) => (
-  <button className={classes.button}>
-    <span className={classes.label}>
+// Define the component using these styles and pass it the 'classes' prop.
+// Use this to assign scoped class names.
+const Button = ({ classes, children }) => (
+  <button className={classes.myButton}>
+    <span className='myLabel'>
       {children}
     </span>
   </button>
 )
 
-export default injectSheet(styles)(Button)
+// Finally, inject the stylesheet into the component.
+const StyledButton = injectSheet(styles)(Button)
+// You can also export the component with
+// export default injectSheet(styles)(Button)
+
+const App = () => (
+  <StyledButton>
+    Submit
+  </StyledButton>
+)
+
+render(<App />, document.getElementById('root'))
+```
+
+The above code will compile to
+
+```html
+<div id="root">
+  <button class="Button-myButton-1-25">
+    <span class="myLabel">
+      Submit
+    </span>
+  </button>
+</div>
+```
+
+and
+
+```css
+.Button-myButton-1-25 {
+  color: green;
+  margin: 5px 0 0 1rem;
+}
+.Button-myButton-1-25 .myLabel {
+  font-weight: bold;
+}
+
 ```
 
 ### Dynamic values
 
-You can use [function values](https://github.com/cssinjs/jss/blob/master/docs/json-api.md#function-values), function rules and observables out of the box. Function values and function rules will receive a props object once component receives new props or mounts first time.
+You can use [function values](https://github.com/cssinjs/jss/blob/master/docs/json-api.md#function-values), function rules and observables out of the box. Function values and function rules will receive a props object once the component receives new props or mounts for the first time.
 
-```js
+```javascript
 const styles = {
-  button: {
-    background: props => props.color
+  myButton: {
+    padding: props => props.pad
   },
-  label: (props) => ({
+  myLabel: (props) => ({
     display: 'block',
-    fontWeight: props.fontWeight
+    color: props.col,
+    fontWeight: props.weight,
+    fontStyle: props.fStyle
   })
 }
 
-const Button = ({classes, children}) => (
-  <button className={classes.button}>
-    <span className={classes.label}>
+const Button = ({ classes, children }) => (
+  <button className={classes.myButton}>
+    <span className={classes.myLabel}>
       {children}
     </span>
   </button>
 )
 
 Button.defaultProps = {
-  fontWeight: 'bold',
-  color: 'red'
+  pad: 10,
+  weight: 'bold',
+  col: 'red'
 }
+
+const StyledButton = injectSheet(styles)(Button)
+
+const App = () => (
+  <StyledButton fStyle='italic'>
+    Submit
+  </StyledButton>
+)
 ```
 
+The above code will compile to
+
+```html
+<div id="root">
+  <button class="Button-myButton-1-25">
+    <span class="Button-myLabel-1-26">
+      Submit
+    </span>
+  </button>
+</div>
+```
+
+and
+
+```css
+.Button-myButton-1-25 {
+  padding: 10px;
+}
+.Button-myLabel-1-26 {
+  display: block;
+  color: red;
+  font-weight: bold;
+  font-style: italic;
+}
+```
 
 ### Theming
 
