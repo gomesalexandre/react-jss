@@ -66,9 +66,12 @@ const styles = {
       bottom: 0,
       left: '1rem'
     },
-    '& .myLabel': { // jss-nested applies this to a child .myLabel
+    '& span': { // jss-nested applies this to a child span
       fontWeight: 'bold' // jss-camel-case turns this into 'font-weight'
     }
+  },
+  myLabel: {
+    fontStyle: 'italic'
   }
 }
 
@@ -76,7 +79,7 @@ const styles = {
 // Use this to assign scoped class names.
 const Button = ({ classes, children }) => (
   <button className={classes.myButton}>
-    <span className='myLabel'>
+    <span className={classes.myLabel}>
       {children}
     </span>
   </button>
@@ -101,7 +104,7 @@ The above code will compile to
 ```html
 <div id="root">
   <button class="Button-myButton-1-25">
-    <span class="myLabel">
+    <span class="Button-myLabel-1-26">
       Submit
     </span>
   </button>
@@ -115,10 +118,12 @@ and
   color: green;
   margin: 5px 0 0 1rem;
 }
-.Button-myButton-1-25 .myLabel {
+.Button-myButton-1-25 span {
   font-weight: bold;
 }
-
+.Button-myLabel-1-26 {
+  font-style: italic;
+}
 ```
 
 ### Dynamic values
@@ -128,13 +133,13 @@ You can use [function values](https://github.com/cssinjs/jss/blob/master/docs/js
 ```javascript
 const styles = {
   myButton: {
-    padding: props => props.pad
+    padding: props => props.spacing
   },
   myLabel: (props) => ({
     display: 'block',
-    color: props.col,
-    fontWeight: props.weight,
-    fontStyle: props.fStyle
+    color: props.labelColor,
+    fontWeight: props.fontWeight,
+    fontStyle: props.fontStyle
   })
 }
 
@@ -147,15 +152,15 @@ const Button = ({ classes, children }) => (
 )
 
 Button.defaultProps = {
-  pad: 10,
-  weight: 'bold',
-  col: 'red'
+  spacing: 10,
+  fontWeight: 'bold',
+  labelColor: 'red'
 }
 
 const StyledButton = injectSheet(styles)(Button)
 
 const App = () => (
-  <StyledButton fStyle='italic'>
+  <StyledButton fontStyle='italic'>
     Submit
   </StyledButton>
 )
