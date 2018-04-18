@@ -237,8 +237,6 @@ describe('injectSheet', () => {
       const StyledComponent = injectSheet({})(InnerComponent)
       render(<StyledComponent ref={ref} />, node)
 
-      console.log(React.version)
-
       const expectedValue = React.forwardRef ? true : undefined
       expect(innerComp.isInnerComponent).to.be(expectedValue)
     })
