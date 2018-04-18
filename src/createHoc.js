@@ -4,7 +4,7 @@ import defaultTheming from 'theming'
 import jss, {getDynamicStyles, SheetsManager} from './jss'
 import compose from './compose'
 import getDisplayName from './getDisplayName'
-import * as symbols from './symbols'
+import * as ns from './ns'
 import contextTypes from './contextTypes'
 
 const env = process.env.NODE_ENV
@@ -139,7 +139,7 @@ export default (stylesOrCreator, InnerComponent, options = {}) => {
     setTheme = theme => this.setState({theme})
 
     createState({theme, dynamicSheet}, {classes: userClasses}) {
-      const contextSheetOptions = this.context[symbols.sheetOptions]
+      const contextSheetOptions = this.context[ns.sheetOptions]
       let classNamePrefix = defaultClassNamePrefix
       let staticSheet = this.manager.get(theme)
       let dynamicStyles
@@ -180,7 +180,7 @@ export default (stylesOrCreator, InnerComponent, options = {}) => {
     }
 
     manage({theme, dynamicSheet}) {
-      const registry = this.context[symbols.sheetsRegistry]
+      const registry = this.context[ns.sheetsRegistry]
 
       const staticSheet = this.manager.manage(theme)
       if (registry) registry.add(staticSheet)
