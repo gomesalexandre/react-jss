@@ -367,11 +367,22 @@ console.log(StyledComponent.InnerComponent) // Prints out the inner component.
 
 ### The inner ref
 
-In order to get a `ref` to the inner element, use `innerRef` prop.
+In order to get a `ref` to the inner element, use the `innerRef` prop.
 
 ```es6
+const InnerComponent = () => null
 const StyledComponent = injectSheet({})(InnerComponent)
+
 <StyledComponent innerRef={(ref) => {console.log(ref)}} />
+```
+
+If you are using React 16.3 or higher we also support forwarding the ref to the InnerComponent.
+
+```es6
+const InnerComponent = () => null
+const StyledComponent = injectSheet({})(InnerComponent)
+
+<StyledComponent ref={(ref) => {console.log(ref)}} />
 ```
 
 ### Custom setup
