@@ -238,6 +238,16 @@ export default (stylesOrCreator, InnerComponent, options = {}) => {
   }
 
   forwardRef.displayName = `Jss(${displayName})`
+  forwardRef.InnerComponent = InnerComponent
 
-  return React.forwardRef ? React.forwardRef(forwardRef) : Jss
+
+  if (React.forwardRef) {
+    const forwardedRef = React.forwardRef(forwardRef)
+
+    forwardedRef.InnerComponent = InnerComponent
+
+    return forwardedRef
+  }
+
+  return Jss
 }

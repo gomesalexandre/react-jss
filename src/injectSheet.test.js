@@ -214,6 +214,34 @@ describe('injectSheet', () => {
 
       expect(innerRef.callCount).to.be(1)
     })
+
+    it('should forward the ref', () => {
+      let innerComp = null
+      const ref = (comp) => {
+        innerComp = comp
+      }
+
+      // eslint-disable-next-line react/no-multi-comp
+      class InnerComponent extends React.PureComponent {
+        constructor(props) {
+          super(props)
+
+          this.isInnerComponent = true
+        }
+
+        render() {
+          return null
+        }
+      }
+
+      const StyledComponent = injectSheet({})(InnerComponent)
+      render(<StyledComponent ref={ref} />, node)
+
+      console.log(React.version)
+
+      const expectedValue = React.forwardRef ? true : undefined
+      expect(innerComp.isInnerComponent).to.be(expectedValue)
+    })
   })
 
   describe('override sheet prop', () => {
