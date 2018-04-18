@@ -74,7 +74,7 @@ export default (stylesOrCreator, InnerComponent, options = {}) => {
   const defaultProps = {...InnerComponent.defaultProps}
   delete defaultProps.classes
 
-  return class Jss extends Component {
+  class Jss extends Component {
     static displayName = `Jss(${displayName})`
     static InnerComponent = InnerComponent
     static contextTypes = {
@@ -93,24 +93,50 @@ export default (stylesOrCreator, InnerComponent, options = {}) => {
       this.state = this.createState({theme}, props)
     }
 
-    get jss() {
-      return this.context[ns.jss] || optionsJss || jss
+    componentWillMount() {
+      this.manage(this.state)
     }
 
-    get manager() {
-      const managers = this.context[ns.managers]
+    componentDidMount() {
+      if (isThemingEnabled) {
+        this.unsubscribeId = themeListener.subscribe(this.context, this.setTheme)
+      }
+    }
 
-      // If `managers` map is present in the context, we use it in order to
-      // let JssProvider reset them when new response has to render server-side.
-      if (managers) {
-        if (!managers[managerId]) {
-          managers[managerId] = new SheetsManager()
-        }
-        return managers[managerId]
+    componentWillReceiveProps(nextProps, nextContext) {
+      this.context = nextContext
+      const {dynamicSheet} = this.state
+      if (dynamicSheet) dynamicSheet.update(nextProps)
+    }
+
+    componentWillUpdate(nextProps, nextState) {
+      if (isThemingEnabled && this.state.theme !== nextState.theme) {
+        const newState = this.createState(nextState, nextProps)
+        this.manage(newState)
+        this.manager.unmanage(this.state.theme)
+        this.setState(newState)
+      }
+    }
+
+    componentDidUpdate(prevProps, prevState) {
+      // We remove previous dynamicSheet only after new one was created to avoid FOUC.
+      if (prevState.dynamicSheet !== this.state.dynamicSheet) {
+        this.jss.removeStyleSheet(prevState.dynamicSheet)
+      }
+    }
+
+    componentWillUnmount() {
+      if (this.unsubscribeId) {
+        themeListener.unsubscribe(this.context, this.unsubscribeId)
       }
 
-      return manager
+      this.manager.unmanage(this.state.theme)
+      if (this.state.dynamicSheet) {
+        this.state.dynamicSheet.detach()
+      }
     }
+
+    setTheme = theme => this.setState({theme})
 
     createState({theme, dynamicSheet}, {classes: userClasses}) {
       const contextSheetOptions = this.context[ns.sheetOptions]
@@ -167,49 +193,23 @@ export default (stylesOrCreator, InnerComponent, options = {}) => {
       }
     }
 
-    componentWillMount() {
-      this.manage(this.state)
+    get jss() {
+      return this.context[ns.jss] || optionsJss || jss
     }
 
-    setTheme = theme => this.setState({theme})
+    get manager() {
+      const managers = this.context[ns.managers]
 
-    componentDidMount() {
-      if (isThemingEnabled) {
-        this.unsubscribeId = themeListener.subscribe(this.context, this.setTheme)
-      }
-    }
-
-    componentWillReceiveProps(nextProps, nextContext) {
-      this.context = nextContext
-      const {dynamicSheet} = this.state
-      if (dynamicSheet) dynamicSheet.update(nextProps)
-    }
-
-    componentWillUpdate(nextProps, nextState) {
-      if (isThemingEnabled && this.state.theme !== nextState.theme) {
-        const newState = this.createState(nextState, nextProps)
-        this.manage(newState)
-        this.manager.unmanage(this.state.theme)
-        this.setState(newState)
-      }
-    }
-
-    componentDidUpdate(prevProps, prevState) {
-      // We remove previous dynamicSheet only after new one was created to avoid FOUC.
-      if (prevState.dynamicSheet !== this.state.dynamicSheet) {
-        this.jss.removeStyleSheet(prevState.dynamicSheet)
-      }
-    }
-
-    componentWillUnmount() {
-      if (this.unsubscribeId) {
-        themeListener.unsubscribe(this.context, this.unsubscribeId)
+      // If `managers` map is present in the context, we use it in order to
+      // let JssProvider reset them when new response has to render server-side.
+      if (managers) {
+        if (!managers[managerId]) {
+          managers[managerId] = new SheetsManager()
+        }
+        return managers[managerId]
       }
 
-      this.manager.unmanage(this.state.theme)
-      if (this.state.dynamicSheet) {
-        this.state.dynamicSheet.detach()
-      }
+      return manager
     }
 
     render() {
@@ -227,4 +227,17 @@ export default (stylesOrCreator, InnerComponent, options = {}) => {
       return <InnerComponent ref={innerRef} {...props} />
     }
   }
+
+  function forwardRef(props, ref) {
+    return (
+      <Jss
+        innerRef={ref}
+        {...props}
+      />
+    )
+  }
+
+  forwardRef.displayName = `Jss(${displayName})`
+
+  return React.forwardRef ? React.forwardRef(forwardRef) : Jss
 }
