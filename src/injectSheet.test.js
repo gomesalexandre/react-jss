@@ -217,8 +217,8 @@ describe('injectSheet', () => {
 
     it('should forward the ref', () => {
       let innerComp = null
-      const ref = (comp) => {
-        innerComp = comp
+      const ref = (element) => {
+        innerComp = element
       }
 
       // eslint-disable-next-line react/no-multi-comp
