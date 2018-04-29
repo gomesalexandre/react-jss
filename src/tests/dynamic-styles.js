@@ -1,4 +1,4 @@
-/* eslint-disable global-require, react/prop-types */
+/* eslint-disable global-require, react/prop-types, react/no-find-dom-node */
 
 import expect from 'expect.js'
 import React, {PureComponent} from 'react'
@@ -55,15 +55,25 @@ describe('dynamic styles', () => {
     })
 
     it('should use the default value', () => {
-      const node0 = render(<MyComponent />, node)
-      const style0 = getComputedStyle(findDOMNode(node0))
+      const node0 = render(
+        <div>
+          <MyComponent />
+        </div>,
+        node
+      )
+      const style0 = getComputedStyle(findDOMNode(node0).querySelector('div'))
       expect(style0.color).to.be(color)
       expect(style0.height).to.be('1px')
     })
 
     it('should have dynamic and static styles', () => {
-      const node0 = render(<MyComponent />, node)
-      const style0 = getComputedStyle(findDOMNode(node0))
+      const node0 = render(
+        <div>
+          <MyComponent />
+        </div>,
+        node
+      )
+      const style0 = getComputedStyle(findDOMNode(node0).querySelector('div'))
       expect(style0.color).to.be(color)
       expect(style0.float).to.be('left')
       expect(style0.height).to.be('1px')
@@ -135,8 +145,13 @@ describe('dynamic styles', () => {
       }
       const StyledComponent = injectSheet(styles)(InnerComponent)
 
-      const node0 = render(<StyledComponent />, node)
-      const style0 = getComputedStyle(findDOMNode(node0))
+      const node0 = render(
+        <div>
+          <StyledComponent />
+        </div>,
+        node
+      )
+      const style0 = getComputedStyle(findDOMNode(node0).querySelector('span'))
       expect(style0.color).to.be('rgb(255, 0, 0)')
     })
   })
@@ -188,15 +203,25 @@ describe('dynamic styles', () => {
     })
 
     it('should use the default value', () => {
-      const node0 = render(<MyComponent />, node)
-      const style0 = getComputedStyle(findDOMNode(node0))
+      const node0 = render(
+        <div>
+          <MyComponent />
+        </div>,
+        node
+      )
+      const style0 = getComputedStyle(findDOMNode(node0).querySelector('div'))
       expect(style0.color).to.be(color)
       expect(style0.height).to.be('1px')
     })
 
     it('should have dynamic and static styles', () => {
-      const node0 = render(<MyComponent />, node)
-      const style0 = getComputedStyle(findDOMNode(node0))
+      const node0 = render(
+        <div>
+          <MyComponent />
+        </div>,
+        node
+      )
+      const style0 = getComputedStyle(findDOMNode(node0).querySelector('div'))
       expect(style0.color).to.be(color)
       expect(style0.float).to.be('left')
       expect(style0.height).to.be('1px')
@@ -268,8 +293,13 @@ describe('dynamic styles', () => {
       }
       const StyledComponent = injectSheet(styles)(InnerComponent)
 
-      const node0 = render(<StyledComponent />, node)
-      const style0 = getComputedStyle(findDOMNode(node0))
+      const node0 = render(
+        <div>
+          <StyledComponent />
+        </div>,
+        node
+      )
+      const style0 = getComputedStyle(findDOMNode(node0).querySelector('span'))
       expect(style0.color).to.be('rgb(255, 0, 0)')
     })
   })
