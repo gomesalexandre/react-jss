@@ -1,3 +1,7 @@
+## 8.5.1 / 2018-06-12
+
+* Remove `forwardRef` support (#255)
+
 ## 8.5.0 / 2018-06-07
 
 * Added `forwardRef` support.
