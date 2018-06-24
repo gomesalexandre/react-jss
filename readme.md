@@ -22,6 +22,7 @@ Benefits compared to lower level core:
   * [Dynamic Values](#dynamic-values)
   * [Theming](#theming)
   * [Server-side rendering](#server-side-rendering)
+  * [React tree traversing](#react-tree-traversing)
   * [Reuse styles in different components](#reuse-styles-in-different-components)
   * [The inner component](#the-inner-component)
   * [The inner ref](#the-inner-ref)
@@ -326,6 +327,33 @@ export default function render(req, res) {
     </html>
   ))
 }
+```
+
+### React tree traversing
+
+For traversing the React tree outside of the HTML rendering, you should add `disableStylesGeneration` property.
+
+```javascript
+import * as React from 'react';
+import * as ReactDOM from 'react-dom';
+import bootstrapper from 'react-async-bootstrapper';
+
+import { JssProvider } from 'react-jss';
+import MyApp from './MyApp';
+
+const App = ({ disableStylesGeneration }) => (
+  <JssProvider disableStylesGeneration>
+    <MyApp />
+  </JssProvider>
+);
+
+async function main() {
+  await bootstrapper(<App disableStylesGeneration />);
+  ReactDOM.render(<App />, document.getElementById('root'));
+}
+
+main();
+
 ```
 
 ### Reuse styles in different components
