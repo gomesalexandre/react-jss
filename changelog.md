@@ -1,3 +1,7 @@
+## 8.6.0 / 2018-06-26
+
+* Added `disableStylesGeneration` prop to the provider (#167)
+
 ## 8.5.1 / 2018-06-12
 
 * Remove `forwardRef` support (#255)
