@@ -195,6 +195,46 @@ describe('JssProvider', () => {
         `)
       })
     })
+
+    describe('disableStylesGeneration prop', () => {
+      it('should forward from context', () => {
+        const generateClassName = () => 'a'
+        const registry = new SheetsRegistry()
+        const MyComponent = injectSheet({a: {color: 'red'}})()
+
+        render(
+          <JssProvider registry={registry} disableStylesGeneration>
+            <JssProvider generateClassName={generateClassName}>
+              <MyComponent />
+            </JssProvider>
+          </JssProvider>,
+          node
+        )
+
+        expect(registry.toString()).to.be('')
+      })
+
+      it('should overwrite over child props', () => {
+        const generateClassName = () => 'a'
+        const registry = new SheetsRegistry()
+        const MyComponent = injectSheet({a: {color: 'red'}})()
+
+        render(
+          <JssProvider registry={registry} disableStylesGeneration>
+            <JssProvider generateClassName={generateClassName} disableStylesGeneration={false}>
+              <MyComponent />
+            </JssProvider>
+          </JssProvider>,
+          node
+        )
+
+        expect(registry.toString()).to.be(stripIndent`
+          .a {
+            color: red;
+          }
+        `)
+      })
+    })
   })
 
   describe('JssProvider in a stateful component', () => {

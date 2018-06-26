@@ -1,5 +1,5 @@
 import {Component, Children} from 'react'
-import {node, func, string} from 'prop-types'
+import {node, func, string, bool} from 'prop-types'
 import {createGenerateClassNameDefault} from './jss'
 import * as ns from './ns'
 import contextTypes from './contextTypes'
@@ -10,6 +10,7 @@ export default class JssProvider extends Component {
     ...propTypes,
     generateClassName: func,
     classNamePrefix: string,
+    disableStylesGeneration: bool,
     children: node.isRequired
   }
 
@@ -22,7 +23,9 @@ export default class JssProvider extends Component {
   // 2. If value was passed, we set it on the child context.
   // 3. If value was not passed, we proxy parent context (default context behaviour).
   getChildContext() {
-    const {registry, classNamePrefix, jss: localJss, generateClassName} = this.props
+    const {
+      registry, classNamePrefix, jss: localJss, generateClassName, disableStylesGeneration
+    } = this.props
     const sheetOptions = this.context[ns.sheetOptions] || {}
     const context = {[ns.sheetOptions]: sheetOptions}
 
@@ -60,6 +63,9 @@ export default class JssProvider extends Component {
 
     if (classNamePrefix) sheetOptions.classNamePrefix = classNamePrefix
     if (localJss) context[ns.jss] = localJss
+    if (disableStylesGeneration !== undefined) {
+      sheetOptions.disableStylesGeneration = disableStylesGeneration
+    }
 
     return context
   }

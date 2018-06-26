@@ -140,6 +140,10 @@ export default (stylesOrCreator, InnerComponent, options = {}) => {
 
     createState({theme, dynamicSheet}, {classes: userClasses}) {
       const contextSheetOptions = this.context[ns.sheetOptions]
+      if (contextSheetOptions && contextSheetOptions.disableStylesGeneration) {
+        return {theme, dynamicSheet, classes: {}}
+      }
+
       let classNamePrefix = defaultClassNamePrefix
       let staticSheet = this.manager.get(theme)
       let dynamicStyles
@@ -180,6 +184,10 @@ export default (stylesOrCreator, InnerComponent, options = {}) => {
     }
 
     manage({theme, dynamicSheet}) {
+      const contextSheetOptions = this.context[ns.sheetOptions]
+      if (contextSheetOptions && contextSheetOptions.disableStylesGeneration) {
+        return
+      }
       const registry = this.context[ns.sheetsRegistry]
 
       const staticSheet = this.manager.manage(theme)
