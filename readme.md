@@ -131,6 +131,11 @@ and
 
 You can use [function values](https://github.com/cssinjs/jss/blob/master/docs/json-api.md#function-values), function rules and observables out of the box. Function values and function rules will receive a props object once the component receives new props or mounts for the first time.
 
+There are 2 caveats:
+
+1. Static properties are rendered first, so function values will have higher source order specificity.
+1. They have a [number of limitations](https://github.com/cssinjs/jss/issues/682) regarding the syntax, since they don't run through all plugins  right now.
+
 ```javascript
 const styles = {
   myButton: {
