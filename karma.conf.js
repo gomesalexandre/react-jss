@@ -1,3 +1,4 @@
+const webpack = require('webpack')
 const webpackConfig = require('./webpack.config')
 process.env.CHROME_BIN = require('puppeteer').executablePath()
 
@@ -11,7 +12,11 @@ module.exports = (config) => {
       'tests.webpack.js': ['webpack', 'sourcemap']
     },
     webpack: Object.assign(webpackConfig, {
-      devtool: 'inline-source-map'
+      devtool: 'inline-source-map',
+      plugins: [].concat(
+        webpackConfig.plugins,
+        new webpack.HotModuleReplacementPlugin()
+      )
     }),
     webpackServer: {
       noInfo: true
