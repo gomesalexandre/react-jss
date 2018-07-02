@@ -1,10 +1,13 @@
 import React, {Component} from 'react'
-import {themeListener} from 'theming'
+import PropTypes from 'prop-types'
+import defaultTheming from 'theming'
 import jss, {getDynamicStyles, SheetsManager} from './jss'
 import compose from './compose'
 import getDisplayName from './getDisplayName'
 import * as ns from './ns'
 import contextTypes from './contextTypes'
+
+const env = process.env.NODE_ENV
 
 // Like a Symbol
 const dynamicStylesNs = Math.random()
@@ -36,6 +39,20 @@ const getStyles = (stylesOrCreator, theme) => {
   return stylesOrCreator(theme)
 }
 
+// Returns an object with array property as a key and true as a value.
+const toMap = arr => arr.reduce((map, prop) => {
+  map[prop] = true
+  return map
+}, {})
+
+const defaultInjectProps = {
+  sheet: false,
+  classes: true,
+  theme: true
+}
+
+let managersCounter = 0
+
 /**
  * Wrap a Component into a JSS Container Component.
  *
@@ -46,9 +63,13 @@ const getStyles = (stylesOrCreator, theme) => {
  */
 export default (stylesOrCreator, InnerComponent, options = {}) => {
   const isThemingEnabled = typeof stylesOrCreator === 'function'
-
-  const displayName = `Jss(${getDisplayName(InnerComponent)})`
+  const {theming = defaultTheming, inject, jss: optionsJss, ...sheetOptions} = options
+  const injectMap = inject ? toMap(inject) : defaultInjectProps
+  const {themeListener} = theming
+  const displayName = getDisplayName(InnerComponent)
+  const defaultClassNamePrefix = env === 'production' ? undefined : `${displayName}-`
   const noTheme = {}
+  const managerId = managersCounter++
 
   /**
    * manager will be resetted after HMR is triggered,
@@ -57,68 +78,134 @@ export default (stylesOrCreator, InnerComponent, options = {}) => {
    *  * https://github.com/gaearon/react-hot-loader/issues/378
    *  * https://github.com/gaearon/react-hot-loader/issues/279
    */
-  let manager = new SheetsManager()
-  let providerId
+  const manager = new SheetsManager()
+  const defaultProps = {...InnerComponent.defaultProps}
+  delete defaultProps.classes
 
-  return class Jss extends Component {
-    static displayName = displayName
+  class Jss extends Component {
+    static displayName = `Jss(${displayName})`
     static InnerComponent = InnerComponent
     static contextTypes = {
       ...contextTypes,
       ...(isThemingEnabled && themeListener.contextTypes)
     }
-    static defaultProps = InnerComponent.defaultProps
+    static propTypes = {
+      innerRef: PropTypes.func,
+    }
+    static defaultProps = defaultProps
 
     constructor(props, context) {
       super(props, context)
       const theme = isThemingEnabled ? themeListener.initial(context) : noTheme
 
-      this.state = this.createState({theme})
+      this.state = this.createState({theme}, props)
     }
 
-    get jss() {
-      return (this.context && this.context[ns.jss]) || jss
+    componentWillMount() {
+      this.manage(this.state)
     }
 
-    get manager() {
-      if (providerId && (this.context && this.context[ns.providerId] !== providerId)) {
-        manager = new SheetsManager()
+    componentDidMount() {
+      if (isThemingEnabled) {
+        this.unsubscribeId = themeListener.subscribe(this.context, this.setTheme)
       }
-      providerId = this.context && this.context[ns.providerId]
-
-      return manager
     }
 
-    createState({theme, dynamicSheet}) {
+    componentWillReceiveProps(nextProps, nextContext) {
+      this.context = nextContext
+      const {dynamicSheet} = this.state
+      if (dynamicSheet) dynamicSheet.update(nextProps)
+    }
+
+    /**
+     * After HMR is triggered `SheetsManager` is resetted,
+     * so we have to be carefull here.
+     * HMR executes `createHoc`, `componentWillReceiveProps`, `componentWillUpdate` and `render`
+     * So here you can't unmanage sheet by theme, because manager is empty.
+     */
+    componentWillUpdate(nextProps, nextState) {
+      const isThemeUpdate = isThemingEnabled && this.state.theme !== nextState.theme
+      const isHmrUpdate = process.env.NODE_ENV !== 'production' && (new Error()).stack.indexOf('hotReplacementRender') >= 0
+      if (isThemeUpdate || isHmrUpdate) {
+        const newState = this.createState(nextState, nextProps)
+        this.manage(newState)
+        if (!isHmrUpdate) {
+          this.manager.unmanage(this.state.theme)
+        }
+        this.setState(newState)
+      }
+    }
+
+    componentDidUpdate(prevProps, prevState) {
+      // We remove previous dynamicSheet only after new one was created to avoid FOUC.
+      if (prevState.dynamicSheet !== this.state.dynamicSheet) {
+        this.jss.removeStyleSheet(prevState.dynamicSheet)
+      }
+    }
+
+    componentWillUnmount() {
+      if (this.unsubscribeId) {
+        themeListener.unsubscribe(this.context, this.unsubscribeId)
+      }
+
+      this.manager.unmanage(this.state.theme)
+      if (this.state.dynamicSheet) {
+        this.state.dynamicSheet.detach()
+      }
+    }
+
+    setTheme = theme => this.setState({theme})
+
+    createState({theme, dynamicSheet}, {classes: userClasses}) {
+      const contextSheetOptions = this.context[ns.sheetOptions]
+      if (contextSheetOptions && contextSheetOptions.disableStylesGeneration) {
+        return {theme, dynamicSheet, classes: {}}
+      }
+
+      let classNamePrefix = defaultClassNamePrefix
       let staticSheet = this.manager.get(theme)
       let dynamicStyles
+
+      if (contextSheetOptions && contextSheetOptions.classNamePrefix) {
+        classNamePrefix = contextSheetOptions.classNamePrefix + classNamePrefix
+      }
 
       if (!staticSheet) {
         const styles = getStyles(stylesOrCreator, theme)
         staticSheet = this.jss.createStyleSheet(styles, {
-          ...options,
-          ...this.context[ns.sheetOptions],
-          meta: `${displayName}, ${isThemingEnabled ? 'Themed' : 'Unthemed'}, Static`
+          ...sheetOptions,
+          ...contextSheetOptions,
+          meta: `${displayName}, ${isThemingEnabled ? 'Themed' : 'Unthemed'}, Static`,
+          classNamePrefix
         })
         this.manager.add(theme, staticSheet)
-        dynamicStyles = compose(staticSheet, getDynamicStyles(styles))
+        dynamicStyles = compose(staticSheet.classes, getDynamicStyles(styles))
         staticSheet[dynamicStylesNs] = dynamicStyles
       }
       else dynamicStyles = staticSheet[dynamicStylesNs]
 
       if (dynamicStyles) {
         dynamicSheet = this.jss.createStyleSheet(dynamicStyles, {
-          ...options,
-          ...this.context[ns.sheetOptions],
+          ...sheetOptions,
+          ...contextSheetOptions,
           meta: `${displayName}, ${isThemingEnabled ? 'Themed' : 'Unthemed'}, Dynamic`,
+          classNamePrefix,
           link: true
         })
       }
 
-      return {theme, dynamicSheet}
+      const sheet = dynamicSheet || staticSheet
+      const defaultClasses = InnerComponent.defaultProps ? InnerComponent.defaultProps.classes : {}
+      const classes = {...defaultClasses, ...sheet.classes, ...userClasses}
+
+      return {theme, dynamicSheet, classes}
     }
 
     manage({theme, dynamicSheet}) {
+      const contextSheetOptions = this.context[ns.sheetOptions]
+      if (contextSheetOptions && contextSheetOptions.disableStylesGeneration) {
+        return
+      }
       const registry = this.context[ns.sheetsRegistry]
 
       const staticSheet = this.manager.manage(theme)
@@ -132,63 +219,40 @@ export default (stylesOrCreator, InnerComponent, options = {}) => {
       }
     }
 
-    componentWillMount() {
-      this.manage(this.state)
+    get jss() {
+      return (this.context && this.context[ns.jss]) || optionsJss || jss
     }
 
-    setTheme = theme => this.setState({theme})
+    get manager() {
+      const managers = this.context && this.context[ns.managers]
 
-    componentDidMount() {
-      if (isThemingEnabled) {
-        this.unsubscribe = themeListener.subscribe(this.context, this.setTheme)
-      }
-    }
-
-    componentWillReceiveProps(nextProps) {
-      const {dynamicSheet} = this.state
-      if (dynamicSheet) dynamicSheet.update(nextProps)
-    }
-    /**
-     * After HMR is triggered `SheetsManager` is resetted,
-     * so we have to be carefull here.
-     * HMR executes `createHoc`, `componentWillReceiveProps`, `componentWillUpdate` and `render`
-     * So here you can't unmanage sheet by theme, because manager is empty.
-     */
-    componentWillUpdate(nextProps, nextState) {
-      const isThemeUpdate = isThemingEnabled && this.state.theme !== nextState.theme
-      const isHmrUpdate = process.env.NODE_ENV !== 'production' && this.manager.keys.length === 0
-      if (isThemeUpdate || isHmrUpdate) {
-        const newState = this.createState(nextState)
-        this.manage(newState)
-        if (!isHmrUpdate) this.manager.unmanage(this.state.theme)
-        this.setState(newState)
-      }
-    }
-
-    componentDidUpdate(prevProps, prevState) {
-      // We remove previous dynamicSheet only after new one was created to avoid FOUC.
-      if (prevState.dynamicSheet !== this.state.dynamicSheet) {
-        this.jss.removeStyleSheet(prevState.dynamicSheet)
-      }
-    }
-
-    componentWillUnmount() {
-      if (isThemingEnabled && typeof this.unsubscribe === 'function') {
-        this.unsubscribe()
+      // If `managers` map is present in the context, we use it in order to
+      // let JssProvider reset them when new response has to render server-side.
+      if (managers) {
+        if (!managers[managerId]) {
+          managers[managerId] = new SheetsManager()
+        }
+        return managers[managerId]
       }
 
-      this.manager.unmanage(this.state.theme)
-      if (this.state.dynamicSheet) {
-        this.state.dynamicSheet.detach()
-      }
+      return manager
     }
 
     render() {
-      const {theme, dynamicSheet} = this.state
+      const {theme, dynamicSheet, classes} = this.state
+      const {innerRef, ...props} = this.props
+
       const sheet = dynamicSheet || this.manager.get(theme)
-      const reactJssProps = {sheet, classes: sheet.classes}
-      if (isThemingEnabled) reactJssProps.theme = theme
-      return <InnerComponent {...reactJssProps} {...this.props} />
+
+      if (injectMap.sheet && !props.sheet) props.sheet = sheet
+      if (isThemingEnabled && injectMap.theme && !props.theme) props.theme = theme
+
+      // We have merged classes already.
+      if (injectMap.classes) props.classes = classes
+
+      return <InnerComponent ref={innerRef} {...props} />
     }
   }
+
+  return Jss
 }

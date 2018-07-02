@@ -1,10 +1,10 @@
-import {object, number, instanceOf} from 'prop-types'
-import jss, {SheetsRegistry} from './jss'
+import {object} from 'prop-types'
 import * as ns from './ns'
+import propTypes from './propTypes'
 
 export default {
-  [ns.jss]: instanceOf(jss.constructor),
+  [ns.jss]: propTypes.jss,
   [ns.sheetOptions]: object,
-  [ns.sheetsRegistry]: instanceOf(SheetsRegistry),
-  [ns.providerId]: number
+  [ns.sheetsRegistry]: propTypes.registry,
+  [ns.managers]: object
 }
