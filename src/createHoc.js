@@ -220,11 +220,11 @@ export default (stylesOrCreator, InnerComponent, options = {}) => {
     }
 
     get jss() {
-      return (this.context && this.context[ns.jss]) || optionsJss || jss
+      return this.context[ns.jss] || optionsJss || jss
     }
 
     get manager() {
-      const managers = this.context && this.context[ns.managers]
+      const managers = this.context[ns.managers]
 
       // If `managers` map is present in the context, we use it in order to
       // let JssProvider reset them when new response has to render server-side.
