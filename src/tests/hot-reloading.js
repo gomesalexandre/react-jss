@@ -17,7 +17,19 @@ describe('hot reloading', () => {
     ComponentC = injectSheet({button: {color: 'blue'}})()
   })
 
-  it.only('should hot reload component and attach new sheets', () => {
+  after(() => {
+    // Currently, when hot reloading, old sheets are left behind in the page, as
+    // mentioned here:
+    //   https://github.com/cssinjs/react-jss/pull/123#discussion_r130298137)
+    // So we need to manually clean them up to make sure the other tests have a
+    // clean document to begin with.
+    const styles = document.querySelectorAll('style')
+    for (let i = 0; i < styles.length; ++i) {
+      styles[i].parentNode.removeChild(styles[i])
+    }
+  })
+
+  it('should hot reload component and attach new sheets', () => {
     RHL.register(ComponentA, 'Component', 'test.js')
     const container = render(<AppContainer><ComponentA /></AppContainer>, node)
 
@@ -27,10 +39,8 @@ describe('hot reloading', () => {
     RHL.register(ComponentB, 'Component', 'test.js')
     deepForceUpdate(container)
 
-    // Currently, when hot reloading, old sheets are left behind in the page, as
-    // mentioned here:
-    //   https://github.com/cssinjs/react-jss/pull/123#discussion_r130298137)
-    // That being the case, this test can expect that behavior.
+    // As noted above, old sheets are left behind in the page when hot reloading,
+    // so this test needs to expect that behavior.
     expect(document.querySelectorAll('style').length).to.be(2)
     expect(document.querySelectorAll('style')[1].innerHTML).to.contain('color: green')
 
