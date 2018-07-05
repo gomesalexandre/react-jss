@@ -146,9 +146,12 @@ export default (stylesOrCreator, InnerComponent, options = {}) => {
       }
 
       const defaultClasses = InnerComponent.defaultProps ? InnerComponent.defaultProps.classes : {}
+      const jssClasses = dynamicSheet
+        ? compose(staticSheet.classes, dynamicSheet.classes)
+        : staticSheet.classes
       const classes = {
         ...defaultClasses,
-        ...compose(staticSheet.classes, dynamicSheet ? dynamicSheet.classes : {}),
+        ...jssClasses,
         ...userClasses
       }
 
