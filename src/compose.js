@@ -22,11 +22,13 @@
  * @return {Object|null}
  */
 export default (staticClasses, dynamicClasses) => {
+  const combinedClasses = {...staticClasses}
+
   for (const name in dynamicClasses) {
-    staticClasses[name] = staticClasses[name]
+    combinedClasses[name] = staticClasses[name]
       ? `${staticClasses[name]} ${dynamicClasses[name]}`
       : dynamicClasses[name]
   }
 
-  return staticClasses
+  return combinedClasses
 }
