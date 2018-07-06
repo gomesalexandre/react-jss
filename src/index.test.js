@@ -1,7 +1,12 @@
 import expect from 'expect.js'
 import injectSheet, {
-  jss, createGenerateClassName, ThemeProvider, JssProvider, SheetsRegistry,
-  withTheme, createTheming
+  jss,
+  createGenerateClassName,
+  ThemeProvider,
+  JssProvider,
+  SheetsRegistry,
+  withTheme,
+  createTheming
 } from './index'
 
 describe('exports', () => {

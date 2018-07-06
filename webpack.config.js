@@ -16,11 +16,13 @@ const plugins = [
 ]
 
 if (isProd) {
-  plugins.push(new webpack.optimize.UglifyJsPlugin({
-    compress: {
-      warnings: false
-    }
-  }))
+  plugins.push(
+    new webpack.optimize.UglifyJsPlugin({
+      compress: {
+        warnings: false
+      }
+    })
+  )
 }
 
 let externals

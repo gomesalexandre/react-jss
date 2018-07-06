@@ -15,7 +15,7 @@ import createHoc from './createHoc'
  */
 let indexCounter = -100000
 
-const NoRenderer = ({children}) => (children || null)
+const NoRenderer = ({children}) => children || null
 
 /**
  * HOC creator function that wrapps the user component.

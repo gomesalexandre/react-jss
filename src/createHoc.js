@@ -40,10 +40,11 @@ const getStyles = (stylesOrCreator, theme) => {
 }
 
 // Returns an object with array property as a key and true as a value.
-const toMap = arr => arr.reduce((map, prop) => {
-  map[prop] = true
-  return map
-}, {})
+const toMap = arr =>
+  arr.reduce((map, prop) => {
+    map[prop] = true
+    return map
+  }, {})
 
 const defaultInjectProps = {
   sheet: false,
@@ -82,7 +83,7 @@ export default (stylesOrCreator, InnerComponent, options = {}) => {
       ...(isThemingEnabled && themeListener.contextTypes)
     }
     static propTypes = {
-      innerRef: PropTypes.func,
+      innerRef: PropTypes.func
     }
     static defaultProps = defaultProps
 
@@ -179,7 +180,10 @@ export default (stylesOrCreator, InnerComponent, options = {}) => {
         ? InnerComponent.defaultProps.classes
         : undefined
       const jssClasses = dynamicSheet
-        ? compose(staticSheet.classes, dynamicSheet.classes)
+        ? compose(
+            staticSheet.classes,
+            dynamicSheet.classes
+          )
         : staticSheet.classes
       const classes = {
         ...defaultClasses,
@@ -201,9 +205,7 @@ export default (stylesOrCreator, InnerComponent, options = {}) => {
       if (registry) registry.add(staticSheet)
 
       if (dynamicSheet) {
-        dynamicSheet
-          .update(this.props)
-          .attach()
+        dynamicSheet.update(this.props).attach()
         if (registry) registry.add(dynamicSheet)
       }
     }

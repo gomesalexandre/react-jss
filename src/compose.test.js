@@ -5,13 +5,16 @@ describe('compose', () => {
   it('should compose two class objects', () => {
     const staticClasses = {
       a: 'a',
-      b: 'b',
+      b: 'b'
     }
     const dynamicClasses = {
       b: 'b2',
       c: 'c'
     }
-    const composed = compose(staticClasses, dynamicClasses)
+    const composed = compose(
+      staticClasses,
+      dynamicClasses
+    )
     expect(composed).to.eql({
       a: 'a',
       b: 'b b2',

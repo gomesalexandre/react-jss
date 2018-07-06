@@ -77,10 +77,18 @@ describe('injectSheet', () => {
         injectedProps = props
         return null
       }
-      const MyComponent = injectSheet(() => ({
-        button: {color: 'red'}
-      }), options)(Renderer)
-      render(<ThemeProvider theme={{}}><MyComponent /></ThemeProvider>, node)
+      const MyComponent = injectSheet(
+        () => ({
+          button: {color: 'red'}
+        }),
+        options
+      )(Renderer)
+      render(
+        <ThemeProvider theme={{}}>
+          <MyComponent />
+        </ThemeProvider>,
+        node
+      )
       return Object.keys(injectedProps)
     }
 
@@ -117,9 +125,12 @@ describe('injectSheet', () => {
       ComponentB = injectSheet({
         button: {color: 'blue'}
       })()
-      ComponentC = injectSheet({
-        button: {color: 'green'}
-      }, {index: 1234})()
+      ComponentC = injectSheet(
+        {
+          button: {color: 'green'}
+        },
+        {index: 1234}
+      )()
     })
 
     it('should provide a default index in ascending order', () => {
@@ -180,7 +191,12 @@ describe('injectSheet', () => {
         isRendered = true
         return null
       }
-      render(<MyComponent><ChildComponent /></MyComponent>, node)
+      render(
+        <MyComponent>
+          <ChildComponent />
+        </MyComponent>,
+        node
+      )
       unmountComponentAtNode(node)
       expect(isRendered).to.be(true)
     })
@@ -202,9 +218,7 @@ describe('injectSheet', () => {
       /* eslint-disable react/no-multi-comp, react/prefer-stateless-function */
       class InnerComponent extends React.PureComponent {
         render() {
-          return (
-            <div />
-          )
+          return <div />
         }
       }
       /* eslint-enable */
@@ -277,9 +291,12 @@ describe('injectSheet', () => {
       InnerComponent.defaultProps = {
         classes: {default: 'default'}
       }
-      const MyComponent = injectSheet({
-        a: {color: 'red'}
-      }, {jss})(InnerComponent)
+      const MyComponent = injectSheet(
+        {
+          a: {color: 'red'}
+        },
+        {jss}
+      )(InnerComponent)
       render(<MyComponent />, node)
       expect(classes).to.eql({default: 'default', a: 'a-id'})
     })
@@ -293,9 +310,12 @@ describe('injectSheet', () => {
       InnerComponent.defaultProps = {
         classes: {default: 'default'}
       }
-      const MyComponent = injectSheet({
-        a: {color: 'red'}
-      }, {jss})(InnerComponent)
+      const MyComponent = injectSheet(
+        {
+          a: {color: 'red'}
+        },
+        {jss}
+      )(InnerComponent)
       render(<MyComponent classes={{user: 'user'}} />, node)
       expect(classes).to.eql({default: 'default', a: 'a-id', user: 'user'})
     })
@@ -314,9 +334,12 @@ describe('injectSheet', () => {
       function DisplayNameTest() {
         return null
       }
-      const MyComponent = injectSheet({
-        a: {color: 'red'}
-      }, {jss: localJss})(DisplayNameTest)
+      const MyComponent = injectSheet(
+        {
+          a: {color: 'red'}
+        },
+        {jss: localJss}
+      )(DisplayNameTest)
       render(<MyComponent />, node)
     }
 
@@ -349,9 +372,11 @@ describe('injectSheet', () => {
 
       const newJss = createJss({
         createGenerateClassName,
-        plugins: [{
-          onProcessStyle: () => ({right: '2px'})
-        }]
+        plugins: [
+          {
+            onProcessStyle: () => ({right: '2px'})
+          }
+        ]
       })
 
       render(<ComponentB localJss={newJss} />, node)

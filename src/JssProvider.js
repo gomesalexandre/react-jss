@@ -24,7 +24,11 @@ export default class JssProvider extends Component {
   // 3. If value was not passed, we proxy parent context (default context behaviour).
   getChildContext() {
     const {
-      registry, classNamePrefix, jss: localJss, generateClassName, disableStylesGeneration
+      registry,
+      classNamePrefix,
+      jss: localJss,
+      generateClassName,
+      disableStylesGeneration
     } = this.props
     const sheetOptions = this.context[ns.sheetOptions] || {}
     const context = {[ns.sheetOptions]: sheetOptions}

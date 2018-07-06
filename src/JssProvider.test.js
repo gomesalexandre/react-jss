@@ -82,7 +82,11 @@ describe('JssProvider', () => {
 
         render(
           <JssProvider classNamePrefix="A-">
-            <JssProvider classNamePrefix="B-" registry={registry} generateClassName={generateClassName}>
+            <JssProvider
+              classNamePrefix="B-"
+              registry={registry}
+              generateClassName={generateClassName}
+            >
               <MyComponent />
             </JssProvider>
           </JssProvider>,

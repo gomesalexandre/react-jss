@@ -16,20 +16,20 @@ Benefits compared to lower level core:
 
 ## Table of Contents
 
-* [Install](#install)
-* [Usage](#usage)
-  * [Basic](#basic)
-  * [Dynamic Values](#dynamic-values)
-  * [Theming](#theming)
-  * [Server-side rendering](#server-side-rendering)
-  * [React tree traversing](#react-tree-traversing)
-  * [Reuse styles in different components](#reuse-styles-in-different-components)
-  * [The inner component](#the-inner-component)
-  * [The inner ref](#the-inner-ref)
-  * [Custom setup](#custom-setup)
-  * [Decorators](#decorators)
-* [Contributing](#contributing)
-* [License](#license)
+- [Install](#install)
+- [Usage](#usage)
+  - [Basic](#basic)
+  - [Dynamic Values](#dynamic-values)
+  - [Theming](#theming)
+  - [Server-side rendering](#server-side-rendering)
+  - [React tree traversing](#react-tree-traversing)
+  - [Reuse styles in different components](#reuse-styles-in-different-components)
+  - [The inner component](#the-inner-component)
+  - [The inner ref](#the-inner-ref)
+  - [Custom setup](#custom-setup)
+  - [Decorators](#decorators)
+- [Contributing](#contributing)
+- [License](#license)
 
 ## Install
 
@@ -52,7 +52,7 @@ Try it out in the [playground](https://codesandbox.io/s/j3l06yyqpw).
 
 ```javascript
 import React from 'react'
-import { render } from 'react-dom'
+import {render} from 'react-dom'
 // Import React-JSS
 import injectSheet from 'react-jss'
 
@@ -61,13 +61,15 @@ import injectSheet from 'react-jss'
 const styles = {
   myButton: {
     color: 'green',
-    margin: { // jss-expand gives more readable syntax
+    margin: {
+      // jss-expand gives more readable syntax
       top: 5, // jss-default-unit makes this 5px
       right: 0,
       bottom: 0,
       left: '1rem'
     },
-    '& span': { // jss-nested applies this to a child span
+    '& span': {
+      // jss-nested applies this to a child span
       fontWeight: 'bold' // jss-camel-case turns this into 'font-weight'
     }
   },
@@ -78,11 +80,9 @@ const styles = {
 
 // Define the component using these styles and pass it the 'classes' prop.
 // Use this to assign scoped class names.
-const Button = ({ classes, children }) => (
+const Button = ({classes, children}) => (
   <button className={classes.myButton}>
-    <span className={classes.myLabel}>
-      {children}
-    </span>
+    <span className={classes.myLabel}>{children}</span>
   </button>
 )
 
@@ -91,11 +91,7 @@ const StyledButton = injectSheet(styles)(Button)
 // You can also export the component with
 // export default injectSheet(styles)(Button)
 
-const App = () => (
-  <StyledButton>
-    Submit
-  </StyledButton>
-)
+const App = () => <StyledButton>Submit</StyledButton>
 
 render(<App />, document.getElementById('root'))
 ```
@@ -133,15 +129,15 @@ You can use [function values](https://github.com/cssinjs/jss/blob/master/docs/js
 
 There are 2 caveats:
 
-1. Static properties are rendered first, so function values will have higher source order specificity.
-1. They have a [number of limitations](https://github.com/cssinjs/jss/issues/682) regarding the syntax, since they don't run through all plugins  right now.
+1.  Static properties are rendered first, so function values will have higher source order specificity.
+1.  They have a [number of limitations](https://github.com/cssinjs/jss/issues/682) regarding the syntax, since they don't run through all plugins right now.
 
 ```javascript
 const styles = {
   myButton: {
     padding: props => props.spacing
   },
-  myLabel: (props) => ({
+  myLabel: props => ({
     display: 'block',
     color: props.labelColor,
     fontWeight: props.fontWeight,
@@ -149,11 +145,9 @@ const styles = {
   })
 }
 
-const Button = ({ classes, children }) => (
+const Button = ({classes, children}) => (
   <button className={classes.myButton}>
-    <span className={classes.myLabel}>
-      {children}
-    </span>
+    <span className={classes.myLabel}>{children}</span>
   </button>
 )
 
@@ -165,11 +159,7 @@ Button.defaultProps = {
 
 const StyledButton = injectSheet(styles)(Button)
 
-const App = () => (
-  <StyledButton fontStyle='italic'>
-    Submit
-  </StyledButton>
-)
+const App = () => <StyledButton fontStyle="italic">Submit</StyledButton>
 ```
 
 The above code will compile to
@@ -206,12 +196,12 @@ Under the hood `react-jss` uses the unified CSSinJS `theming` solution for React
 
 Using `ThemeProvider`:
 
-* It has a `theme` prop which should be an `object` or `function`:
-  * If it is an `Object` and used in a root `ThemeProvider` then it's intact and being passed down the react tree.
-  * If it is `Object` and used in a nested `ThemeProvider` then it's being merged with theme from a parent `ThemeProvider` and passed down the react tree.
-  * If it is `Function` and used in a nested `ThemeProvider` then it's being applied to the theme from a parent `ThemeProvider`. If result is an `Object` it will be passed down the react tree, throws otherwise.
-* `ThemeProvider` as every other component can render only single child, because it uses `React.Children.only` in render and throws otherwise.
-* [Read more about `ThemeProvider` in `theming`'s documentation.](https://github.com/iamstarkov/theming#themeprovider)
+- It has a `theme` prop which should be an `object` or `function`:
+  - If it is an `Object` and used in a root `ThemeProvider` then it's intact and being passed down the react tree.
+  - If it is `Object` and used in a nested `ThemeProvider` then it's being merged with theme from a parent `ThemeProvider` and passed down the react tree.
+  - If it is `Function` and used in a nested `ThemeProvider` then it's being applied to the theme from a parent `ThemeProvider`. If result is an `Object` it will be passed down the react tree, throws otherwise.
+- `ThemeProvider` as every other component can render only single child, because it uses `React.Children.only` in render and throws otherwise.
+- [Read more about `ThemeProvider` in `theming`'s documentation.](https://github.com/iamstarkov/theming#themeprovider)
 
 ```javascript
 import React from 'react'
@@ -219,9 +209,7 @@ import injectSheet, {ThemeProvider} from 'react-jss'
 
 const Button = ({classes, children}) => (
   <button className={classes.button}>
-    <span className={classes.label}>
-      {children}
-    </span>
+    <span className={classes.label}>{children}</span>
   </button>
 )
 
@@ -253,12 +241,10 @@ In case you need to access the theme but not render any CSS, you can also use `w
 import React from 'react'
 import injectSheet, {withTheme} from 'react-jss'
 
-const Button = withTheme(({theme}) => (
-  <button>I can access {theme.colorPrimary}</button>
-))
+const Button = withTheme(({theme}) => <button>I can access {theme.colorPrimary}</button>)
 ```
 
-_Namespaced_ themes can be used so that a set of UI components should not conflict with another set of UI components from a different library using also ```react-jss```.
+_Namespaced_ themes can be used so that a set of UI components should not conflict with another set of UI components from a different library using also `react-jss`.
 
 ```javascript
 import {createTheming} from 'react-jss'
@@ -319,18 +305,16 @@ export default function render(req, res) {
   // Any instances of `injectSheet` within `<MyApp />` will have gotten sheets
   // from `context` and added their Style Sheets to it by now.
 
-  return res.send(renderToString(
-    <html>
-      <head>
-        <style type="text/css">
-          {sheets.toString()}
-        </style>
-      </head>
-      <body>
-        {body}
-      </body>
-    </html>
-  ))
+  return res.send(
+    renderToString(
+      <html>
+        <head>
+          <style type="text/css">{sheets.toString()}</style>
+        </head>
+        <body>{body}</body>
+      </html>
+    )
+  )
 }
 ```
 
@@ -343,10 +327,10 @@ import * as React from 'react'
 import * as ReactDOM from 'react-dom'
 import bootstrapper from 'react-async-bootstrapper'
 
-import { JssProvider } from 'react-jss'
+import {JssProvider} from 'react-jss'
 import MyApp from './MyApp'
 
-const App = ({ disableStylesGeneration }) => (
+const App = ({disableStylesGeneration}) => (
   <JssProvider disableStylesGeneration>
     <MyApp />
   </JssProvider>
@@ -362,7 +346,7 @@ main()
 
 ### Reuse styles in different components
 
-In order to reuse the same styles __and__ the same generated style sheet between 2 entirely different and unrelated components, we suggest extracting a renderer component and reusing that.
+In order to reuse the same styles **and** the same generated style sheet between 2 entirely different and unrelated components, we suggest extracting a renderer component and reusing that.
 
 ```javascript
 const styles = {
@@ -446,7 +430,7 @@ import {jss} from 'react-jss'
 
 In case you render multiple react rendering trees in one application, you will get class name collisions, because every JssProvider rerender will reset the class names generator. If you want to avoid this, you can share the class names generator between multiple JssProvider instances.
 
-__Note__: in case of SSR, make sure to create a new generator for __each__ request. Otherwise class names will become indeterministic and at some point you may run out of max safe integer numbers.
+**Note**: in case of SSR, make sure to create a new generator for **each** request. Otherwise class names will become indeterministic and at some point you may run out of max safe integer numbers.
 
 ```javascript
 import {createGenerateClassName, JssProvider} from 'react-jss'
@@ -508,9 +492,7 @@ export default class Button extends Component {
     const {classes, children} = this.props
     return (
       <button className={classes.button}>
-        <span className={classes.label}>
-          {children}
-        </span>
+        <span className={classes.label}>{children}</span>
       </button>
     )
   }
@@ -527,7 +509,11 @@ Example
 ```js
 // Will render labelStyles first.
 const Label = injectSheet(labelStyles)(({children}) => <label>{children}</label>)
-const Button = injectSheet(buttonStyles)(() => <button><Label>my button</Label></button>)
+const Button = injectSheet(buttonStyles)(() => (
+  <button>
+    <Label>my button</Label>
+  </button>
+))
 ```
 
 ## Whitelist injected props
@@ -538,11 +524,10 @@ If you want to whitelist some of them, you can now use option `inject`. For e.g.
 All user props passed to the HOC will still be forwarded as usual.
 
 ```js
-
 // Only `classes` prop will be passed by the ReactJSS HOC now. No `sheet` or `theme`.
-const Button = injectSheet(styles, {inject: ['classes', 'sheet']})(
-  ({classes}) => <button>My button</button>
-)
+const Button = injectSheet(styles, {inject: ['classes', 'sheet']})(({classes}) => (
+  <button>My button</button>
+))
 ```
 
 ## Contributing
