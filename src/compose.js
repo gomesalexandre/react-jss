@@ -21,32 +21,14 @@
  * @param {Object} styles dynamic styles object without static properties
  * @return {Object|null}
  */
-export default (classes, styles) => {
-  // Add `composes` property to rules which are already defined in `classes`.
-  for (const name in styles) {
-    const className = classes[name]
-    if (!className) break
+export default (staticClasses, dynamicClasses) => {
+  const combinedClasses = {...staticClasses}
 
-    if (typeof styles[name] === 'function') {
-      styles[name] = {
-        extend: styles[name],
-        composes: className
-      }
-      continue
-    }
-
-    styles[name].composes = className
+  for (const name in dynamicClasses) {
+    combinedClasses[name] = staticClasses[name]
+      ? `${staticClasses[name]} ${dynamicClasses[name]}`
+      : dynamicClasses[name]
   }
 
-  if (styles) {
-    // Add rules which are defined in `classes` but aren't in styles.
-    for (const name in classes) {
-      const className = styles[name]
-      if (!className) {
-        styles[name] = {composes: classes[name]}
-      }
-    }
-  }
-
-  return styles
+  return combinedClasses
 }

@@ -146,7 +146,6 @@ export default (stylesOrCreator, InnerComponent, options = {}) => {
 
       let classNamePrefix = defaultClassNamePrefix
       let staticSheet = this.manager.get(theme)
-      let dynamicStyles
 
       if (contextSheetOptions && contextSheetOptions.classNamePrefix) {
         classNamePrefix = contextSheetOptions.classNamePrefix + classNamePrefix
@@ -161,10 +160,10 @@ export default (stylesOrCreator, InnerComponent, options = {}) => {
           classNamePrefix
         })
         this.manager.add(theme, staticSheet)
-        dynamicStyles = compose(staticSheet.classes, getDynamicStyles(styles))
-        staticSheet[dynamicStylesNs] = dynamicStyles
+        staticSheet[dynamicStylesNs] = getDynamicStyles(styles)
       }
-      else dynamicStyles = staticSheet[dynamicStylesNs]
+
+      const dynamicStyles = staticSheet[dynamicStylesNs]
 
       if (dynamicStyles) {
         dynamicSheet = this.jss.createStyleSheet(dynamicStyles, {
@@ -176,9 +175,15 @@ export default (stylesOrCreator, InnerComponent, options = {}) => {
         })
       }
 
-      const sheet = dynamicSheet || staticSheet
       const defaultClasses = InnerComponent.defaultProps ? InnerComponent.defaultProps.classes : {}
-      const classes = {...defaultClasses, ...sheet.classes, ...userClasses}
+      const jssClasses = dynamicSheet
+        ? compose(staticSheet.classes, dynamicSheet.classes)
+        : staticSheet.classes
+      const classes = {
+        ...defaultClasses,
+        ...jssClasses,
+        ...userClasses
+      }
 
       return {theme, dynamicSheet, classes}
     }
