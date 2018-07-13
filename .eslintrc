@@ -1,6 +1,11 @@
 {
   "parser": "babel-eslint",
-  "extends": "eslint-config-jss",
+  "plugins": [
+    "flowtype"
+  ],
+  "extends": [
+	"eslint-config-jss", 
+	"plugin:flowtype/recommended"],
   "globals": {
     "jss": true,
     "sheets": true,
@@ -14,5 +19,16 @@
     "node": true,
     "render": true,
     "unmountComponentAtNode": true
+  },
+  "rules": {
+	"react/sort-comp": [1, {
+		"order": [
+		  "type-annotations",
+		  "static-methods",
+		  "lifecycle",
+		  "everything-else",
+		  "render"
+		]
+	  }]
   }
 }

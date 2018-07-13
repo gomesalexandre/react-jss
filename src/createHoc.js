@@ -1,4 +1,5 @@
-import React, {Component} from 'react'
+// @flow
+import React, {Component, type ComponentType} from 'react'
 import PropTypes from 'prop-types'
 import defaultTheming from 'theming'
 import jss, {getDynamicStyles, SheetsManager} from './jss'
@@ -6,6 +7,7 @@ import compose from './compose'
 import getDisplayName from './getDisplayName'
 import * as ns from './ns'
 import contextTypes from './contextTypes'
+import type {Options} from './types'
 
 const env = process.env.NODE_ENV
 
@@ -32,7 +34,30 @@ const dynamicStylesNs = Math.random()
  *
  */
 
-const getStyles = (stylesOrCreator, theme) => {
+type Theme = {};
+type Props = {
+  classes: ?{},
+  innerRef?: () => {},
+  theme?: Theme,
+  sheet: {}
+};
+type DynamicSheet = {
+    update: (Props) => any,
+    detach: () => any,
+    classes: {}
+} | void | null;
+type State = {
+  theme: Theme,
+  dynamicSheet?: DynamicSheet,
+  classes?: ?{}
+};
+type DefaultProps = {
+  classes: {}
+};
+
+type StylesOrCreator = {[string]: {}} | (theme: Theme) => {};
+
+const getStyles = (stylesOrCreator: StylesOrCreator, theme: Theme) => {
   if (typeof stylesOrCreator !== 'function') {
     return stylesOrCreator
   }
@@ -61,7 +86,7 @@ let managersCounter = 0
  * @param {Object} [options]
  * @return {Component}
  */
-export default (stylesOrCreator, InnerComponent, options = {}) => {
+export default (stylesOrCreator: StylesOrCreator, InnerComponent: any, options: Options = {}) => {
   const isThemingEnabled = typeof stylesOrCreator === 'function'
   const {theming = defaultTheming, inject, jss: optionsJss, ...sheetOptions} = options
   const injectMap = inject ? toMap(inject) : defaultInjectProps
@@ -71,10 +96,12 @@ export default (stylesOrCreator, InnerComponent, options = {}) => {
   const noTheme = {}
   const managerId = managersCounter++
   const manager = new SheetsManager()
-  const defaultProps = {...InnerComponent.defaultProps}
+  const defaultProps: DefaultProps = {...InnerComponent.defaultProps}
   delete defaultProps.classes
 
-  class Jss extends Component {
+  class Jss extends Component<Props, State> {
+    state: State;
+    unsubscribeId: any => any;
     static displayName = `Jss(${displayName})`
     static InnerComponent = InnerComponent
     static contextTypes = {
@@ -86,7 +113,7 @@ export default (stylesOrCreator, InnerComponent, options = {}) => {
     }
     static defaultProps = defaultProps
 
-    constructor(props, context) {
+    constructor(props: Props, context: ComponentType<Props>) {
       super(props, context)
       const theme = isThemingEnabled ? themeListener.initial(context) : noTheme
 
@@ -103,13 +130,13 @@ export default (stylesOrCreator, InnerComponent, options = {}) => {
       }
     }
 
-    componentWillReceiveProps(nextProps, nextContext) {
+    componentWillReceiveProps(nextProps: Props, nextContext: ComponentType<Props>) {
       this.context = nextContext
       const {dynamicSheet} = this.state
       if (dynamicSheet) dynamicSheet.update(nextProps)
     }
 
-    componentWillUpdate(nextProps, nextState) {
+    componentWillUpdate(nextProps: Props, nextState: State) {
       if (isThemingEnabled && this.state.theme !== nextState.theme) {
         const newState = this.createState(nextState, nextProps)
         this.manage(newState)
@@ -118,7 +145,7 @@ export default (stylesOrCreator, InnerComponent, options = {}) => {
       }
     }
 
-    componentDidUpdate(prevProps, prevState) {
+    componentDidUpdate(prevProps: Props, prevState: State) {
       // We remove previous dynamicSheet only after new one was created to avoid FOUC.
       if (prevState.dynamicSheet !== this.state.dynamicSheet) {
         this.jss.removeStyleSheet(prevState.dynamicSheet)
@@ -136,9 +163,9 @@ export default (stylesOrCreator, InnerComponent, options = {}) => {
       }
     }
 
-    setTheme = theme => this.setState({theme})
+    setTheme = (theme: Theme) => this.setState({theme})
 
-    createState({theme, dynamicSheet}, {classes: userClasses}) {
+    createState({theme, dynamicSheet}: State, {classes: userClasses}: Props): State {
       const contextSheetOptions = this.context[ns.sheetOptions]
       if (contextSheetOptions && contextSheetOptions.disableStylesGeneration) {
         return {theme, dynamicSheet, classes: {}}
@@ -183,7 +210,7 @@ export default (stylesOrCreator, InnerComponent, options = {}) => {
       return {theme, dynamicSheet, classes}
     }
 
-    manage({theme, dynamicSheet}) {
+    manage({theme, dynamicSheet}: {theme: Theme, dynamicSheet: DynamicSheet}) {
       const contextSheetOptions = this.context[ns.sheetOptions]
       if (contextSheetOptions && contextSheetOptions.disableStylesGeneration) {
         return
@@ -222,7 +249,7 @@ export default (stylesOrCreator, InnerComponent, options = {}) => {
 
     render() {
       const {theme, dynamicSheet, classes} = this.state
-      const {innerRef, ...props} = this.props
+      const {innerRef, ...props}: Props = this.props
 
       const sheet = dynamicSheet || this.manager.get(theme)
 

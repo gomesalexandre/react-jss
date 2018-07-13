@@ -1,5 +1,15 @@
+// @flow
+import * as React from 'react'
 import hoistNonReactStatics from 'hoist-non-react-statics'
 import createHoc from './createHoc'
+import type {Options} from './types'
+
+type Props = {
+  children: ?React.Element<*>
+};
+type Styles = {[string]: {}};
+type ThemerFn = (theme: {}) => {};
+type StylesOrThemer = Styles | ThemerFn;
 
 /**
  * Global index counter to preserve source order.
@@ -24,11 +34,11 @@ const NoRenderer = ({children}) => (children || null)
  *
  * @api public
  */
-export default function injectSheet(stylesOrSheet, options = {}) {
+export default function injectSheet(stylesOrSheet: StylesOrThemer, options: Options = {}) {
   if (options.index === undefined) {
     options.index = indexCounter++
   }
-  return (InnerComponent = NoRenderer) => {
+  return (InnerComponent: React$ComponentType<Props> = NoRenderer) => {
     const Jss = createHoc(stylesOrSheet, InnerComponent, options)
     return hoistNonReactStatics(Jss, InnerComponent, {inner: true})
   }
