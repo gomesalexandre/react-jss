@@ -2,7 +2,7 @@
 import React, {Component, type ComponentType} from 'react'
 import PropTypes from 'prop-types'
 import defaultTheming from 'theming'
-import jss, {getDynamicStyles, SheetsManager} from './jss'
+import jss, {getDynamicStyles, SheetsManager, JssSheet} from './jss'
 import compose from './compose'
 import getDisplayName from './getDisplayName'
 import * as ns from './ns'
@@ -34,11 +34,6 @@ const dynamicStylesNs = Math.random()
  *
  */
 
-type DynamicSheet = {
-    update: ({}) => any,
-    detach: () => any,
-    classes: {}
-} | void | null;
 type DefaultProps = {
   classes: {}
 };
@@ -50,7 +45,7 @@ type Props = {
 };
 type State = {
   theme: Theme,
-  dynamicSheet?: DynamicSheet,
+  dynamicSheet?: JssSheet,
   classes?: ?{}
 };
 
@@ -98,7 +93,6 @@ export default (stylesOrCreator: StylesOrThemer, InnerComponent: any, options: O
   delete defaultProps.classes
 
   class Jss extends Component<Props, State> {
-    state: State;
     unsubscribeId: any => any;
     static displayName = `Jss(${displayName})`
     static InnerComponent = InnerComponent
@@ -111,7 +105,7 @@ export default (stylesOrCreator: StylesOrThemer, InnerComponent: any, options: O
     }
     static defaultProps = defaultProps
 
-    constructor(props: Props, context: ComponentType<Props>) {
+    constructor(props: Props, context: any) {
       super(props, context)
       const theme = isThemingEnabled ? themeListener.initial(context) : noTheme
 
@@ -208,7 +202,7 @@ export default (stylesOrCreator: StylesOrThemer, InnerComponent: any, options: O
       return {theme, dynamicSheet, classes}
     }
 
-    manage({theme, dynamicSheet}: {theme: Theme, dynamicSheet: DynamicSheet}) {
+    manage({theme, dynamicSheet}: State) {
       const contextSheetOptions = this.context[ns.sheetOptions]
       if (contextSheetOptions && contextSheetOptions.disableStylesGeneration) {
         return

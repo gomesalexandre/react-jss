@@ -1,15 +1,12 @@
 // @flow
+import {JssSheet} from './jss'
+
 export type Options = {
-  theming?: {
-    themeListener: any => any
-  },
-  inject?: [],
-  jss?: any,
-  index?: ?number
+  ...JssSheet.options
 };
 export type Theme = {};
 export type Styles = {[string]: {}};
-export type ThemerFn = (theme: Theme) => {};
+export type ThemerFn = (theme: Theme) => Styles;
 export type StylesOrThemer = Styles | ThemerFn;
 export type Classes<S> = {|
   [$Keys<S>]: string
