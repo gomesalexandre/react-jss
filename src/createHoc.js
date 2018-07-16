@@ -7,7 +7,7 @@ import compose from './compose'
 import getDisplayName from './getDisplayName'
 import * as ns from './ns'
 import contextTypes from './contextTypes'
-import type {Options} from './types'
+import type {Options, Theme, StylesOrThemer} from './types'
 
 const env = process.env.NODE_ENV
 
@@ -34,30 +34,28 @@ const dynamicStylesNs = Math.random()
  *
  */
 
-type Theme = {};
+type DynamicSheet = {
+    update: ({}) => any,
+    detach: () => any,
+    classes: {}
+} | void | null;
+type DefaultProps = {
+  classes: {}
+};
 type Props = {
   classes: ?{},
   innerRef?: () => {},
   theme?: Theme,
   sheet: {}
 };
-type DynamicSheet = {
-    update: (Props) => any,
-    detach: () => any,
-    classes: {}
-} | void | null;
 type State = {
   theme: Theme,
   dynamicSheet?: DynamicSheet,
   classes?: ?{}
 };
-type DefaultProps = {
-  classes: {}
-};
 
-type StylesOrCreator = {[string]: {}} | (theme: Theme) => {};
 
-const getStyles = (stylesOrCreator: StylesOrCreator, theme: Theme) => {
+const getStyles = (stylesOrCreator: StylesOrThemer, theme: Theme) => {
   if (typeof stylesOrCreator !== 'function') {
     return stylesOrCreator
   }
@@ -86,7 +84,7 @@ let managersCounter = 0
  * @param {Object} [options]
  * @return {Component}
  */
-export default (stylesOrCreator: StylesOrCreator, InnerComponent: any, options: Options = {}) => {
+export default (stylesOrCreator: StylesOrThemer, InnerComponent: any, options: Options = {}) => {
   const isThemingEnabled = typeof stylesOrCreator === 'function'
   const {theming = defaultTheming, inject, jss: optionsJss, ...sheetOptions} = options
   const injectMap = inject ? toMap(inject) : defaultInjectProps

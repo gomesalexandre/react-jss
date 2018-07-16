@@ -2,14 +2,7 @@
 import * as React from 'react'
 import hoistNonReactStatics from 'hoist-non-react-statics'
 import createHoc from './createHoc'
-import type {Options} from './types'
-
-type Props = {
-  children: ?React.Element<*>
-};
-type Styles = {[string]: {}};
-type ThemerFn = (theme: {}) => {};
-type StylesOrThemer = Styles | ThemerFn;
+import type {Options, StylesOrThemer} from './types'
 
 /**
  * Global index counter to preserve source order.
@@ -25,7 +18,11 @@ type StylesOrThemer = Styles | ThemerFn;
  */
 let indexCounter = -100000
 
-const NoRenderer = ({children}) => (children || null)
+type NoRendererProps = {
+  children: ?React.Element<*>
+};
+
+const NoRenderer = ({children}: NoRendererProps) => (children || null)
 
 /**
  * HOC creator function that wrapps the user component.
@@ -38,8 +35,9 @@ export default function injectSheet(stylesOrSheet: StylesOrThemer, options: Opti
   if (options.index === undefined) {
     options.index = indexCounter++
   }
-  return (InnerComponent: React$ComponentType<Props> = NoRenderer) => {
+  function injector<P: any>(InnerComponent: React$ComponentType<P> = NoRenderer) {
     const Jss = createHoc(stylesOrSheet, InnerComponent, options)
     return hoistNonReactStatics(Jss, InnerComponent, {inner: true})
   }
+  return injector
 }
