@@ -1,7 +1,7 @@
 const webpackConfig = require('./webpack.config')
 process.env.CHROME_BIN = require('puppeteer').executablePath()
 
-module.exports = (config) => {
+module.exports = config => {
   config.set({
     browsers: ['ChromeHeadless'],
     frameworks: ['mocha'],
@@ -18,10 +18,7 @@ module.exports = (config) => {
     },
     reporters: ['mocha', 'coverage'],
     coverageReporter: {
-      reporters: [
-        { type: 'text' },
-        { type: 'json', dir: 'coverage', file: 'coverage.json' }
-      ],
+      reporters: [{type: 'text'}, {type: 'json', dir: 'coverage', file: 'coverage.json'}]
     }
   })
 }

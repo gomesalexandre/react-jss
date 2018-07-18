@@ -16,7 +16,7 @@ describe('theming', () => {
   const themedDynamicStyles = theme => ({
     rule: {
       color: theme.color,
-      backgroundColor: props => props.backgroundColor,
+      backgroundColor: props => props.backgroundColor
     }
   })
   const ThemeA = {color: '#aaa'}
@@ -52,225 +52,285 @@ describe('theming', () => {
   })
 
   it('one themed instance wo/ dynamic props = 1 style', () => {
-    render(<div>
-      <ThemeProvider theme={ThemeA}>
-        <ThemedStaticComponent />
-      </ThemeProvider>
-    </div>, node)
+    render(
+      <div>
+        <ThemeProvider theme={ThemeA}>
+          <ThemedStaticComponent />
+        </ThemeProvider>
+      </div>,
+      node
+    )
     expect(document.querySelectorAll('style').length).to.equal(1)
   })
 
   it('one themed instance w/ dynamic props = 2 styles', () => {
-    render(<div>
-      <ThemeProvider theme={ThemeA}>
-        <ThemedDynamicComponent backgroundColor="#fff" />
-      </ThemeProvider>
-    </div>, node)
+    render(
+      <div>
+        <ThemeProvider theme={ThemeA}>
+          <ThemedDynamicComponent backgroundColor="#fff" />
+        </ThemeProvider>
+      </div>,
+      node
+    )
     expect(document.querySelectorAll('style').length).to.equal(2)
   })
 
   it('one themed instance wo/ = 1 style, theme update = 1 style', () => {
-    render(<div>
-      <ThemeProvider theme={ThemeA}>
-        <ThemedStaticComponent />
-      </ThemeProvider>
-    </div>, node)
+    render(
+      <div>
+        <ThemeProvider theme={ThemeA}>
+          <ThemedStaticComponent />
+        </ThemeProvider>
+      </div>,
+      node
+    )
 
     expect(document.querySelectorAll('style').length).to.equal(1)
 
-    render(<div>
-      <ThemeProvider theme={ThemeB}>
-        <ThemedStaticComponent />
-      </ThemeProvider>
-    </div>, node)
+    render(
+      <div>
+        <ThemeProvider theme={ThemeB}>
+          <ThemedStaticComponent />
+        </ThemeProvider>
+      </div>,
+      node
+    )
 
     expect(document.querySelectorAll('style').length).to.equal(1)
   })
 
   it('one themed instance w/ dynamic props = 2 styles, theme update = 2 styles', () => {
-    render(<div>
-      <ThemeProvider theme={ThemeA}>
-        <ThemedDynamicComponent backgroundColor="#fff" />
-      </ThemeProvider>
-    </div>, node)
+    render(
+      <div>
+        <ThemeProvider theme={ThemeA}>
+          <ThemedDynamicComponent backgroundColor="#fff" />
+        </ThemeProvider>
+      </div>,
+      node
+    )
 
     expect(document.querySelectorAll('style').length).to.equal(2)
 
-    render(<div>
-      <ThemeProvider theme={ThemeB}>
-        <ThemedDynamicComponent backgroundColor="#fff" />
-      </ThemeProvider>
-    </div>, node)
+    render(
+      <div>
+        <ThemeProvider theme={ThemeB}>
+          <ThemedDynamicComponent backgroundColor="#fff" />
+        </ThemeProvider>
+      </div>,
+      node
+    )
 
     expect(document.querySelectorAll('style').length).to.equal(2)
   })
 
   it('two themed instances wo/ dynamic props w/ same theme = 1 style', () => {
-    render(<div>
-      <ThemeProvider theme={ThemeA}>
-        <div>
-          <ThemedStaticComponent />
-          <ThemedStaticComponent />
-        </div>
-      </ThemeProvider>
-    </div>, node)
+    render(
+      <div>
+        <ThemeProvider theme={ThemeA}>
+          <div>
+            <ThemedStaticComponent />
+            <ThemedStaticComponent />
+          </div>
+        </ThemeProvider>
+      </div>,
+      node
+    )
 
     expect(document.querySelectorAll('style').length).to.equal(1)
   })
 
   it('two themed instances w/ dynamic props w/ same theme = 3 styles', () => {
-    render(<div>
-      <ThemeProvider theme={ThemeA}>
-        <div>
-          <ThemedDynamicComponent backgroundColor="#fff" />
-          <ThemedDynamicComponent backgroundColor="#fff" />
-        </div>
-      </ThemeProvider>
-    </div>, node)
+    render(
+      <div>
+        <ThemeProvider theme={ThemeA}>
+          <div>
+            <ThemedDynamicComponent backgroundColor="#fff" />
+            <ThemedDynamicComponent backgroundColor="#fff" />
+          </div>
+        </ThemeProvider>
+      </div>,
+      node
+    )
 
     expect(document.querySelectorAll('style').length).to.equal(3)
   })
 
   it('two themed instances wo/ dynamic props w/ same theme = 1 style, theme update = 1 style', () => {
-    render(<div>
-      <ThemeProvider theme={ThemeA}>
-        <div>
-          <ThemedStaticComponent />
-          <ThemedStaticComponent />
-        </div>
-      </ThemeProvider>
-    </div>, node)
+    render(
+      <div>
+        <ThemeProvider theme={ThemeA}>
+          <div>
+            <ThemedStaticComponent />
+            <ThemedStaticComponent />
+          </div>
+        </ThemeProvider>
+      </div>,
+      node
+    )
 
     expect(document.querySelectorAll('style').length).to.equal(1)
 
-    render(<div>
-      <ThemeProvider theme={ThemeB}>
-        <div>
-          <ThemedStaticComponent />
-          <ThemedStaticComponent />
-        </div>
-      </ThemeProvider>
-    </div>, node)
+    render(
+      <div>
+        <ThemeProvider theme={ThemeB}>
+          <div>
+            <ThemedStaticComponent />
+            <ThemedStaticComponent />
+          </div>
+        </ThemeProvider>
+      </div>,
+      node
+    )
 
     expect(document.querySelectorAll('style').length).to.equal(1)
   })
 
   it('two themed instances w/ dynamic props w/ same theme = 3 styles, theme update = 3 styles', () => {
-    render(<div>
-      <ThemeProvider theme={ThemeA}>
-        <div>
-          <ThemedDynamicComponent backgroundColor="#fff" />
-          <ThemedDynamicComponent backgroundColor="#fff" />
-        </div>
-      </ThemeProvider>
-    </div>, node)
+    render(
+      <div>
+        <ThemeProvider theme={ThemeA}>
+          <div>
+            <ThemedDynamicComponent backgroundColor="#fff" />
+            <ThemedDynamicComponent backgroundColor="#fff" />
+          </div>
+        </ThemeProvider>
+      </div>,
+      node
+    )
 
     expect(document.querySelectorAll('style').length).to.equal(3)
 
-    render(<div>
-      <ThemeProvider theme={ThemeB}>
-        <div>
-          <ThemedDynamicComponent backgroundColor="#fff" />
-          <ThemedDynamicComponent backgroundColor="#fff" />
-        </div>
-      </ThemeProvider>
-    </div>, node)
+    render(
+      <div>
+        <ThemeProvider theme={ThemeB}>
+          <div>
+            <ThemedDynamicComponent backgroundColor="#fff" />
+            <ThemedDynamicComponent backgroundColor="#fff" />
+          </div>
+        </ThemeProvider>
+      </div>,
+      node
+    )
 
     expect(document.querySelectorAll('style').length).to.equal(3)
   })
 
   it('two themed instances wo/ dynamic props w/ same theme = 1 styles, different theme update = 2 styles', () => {
-    render(<div>
-      <ThemeProvider theme={ThemeA}>
-        <ThemedStaticComponent />
-      </ThemeProvider>
-      <ThemeProvider theme={ThemeA}>
-        <ThemedStaticComponent />
-      </ThemeProvider>
-    </div>, node)
+    render(
+      <div>
+        <ThemeProvider theme={ThemeA}>
+          <ThemedStaticComponent />
+        </ThemeProvider>
+        <ThemeProvider theme={ThemeA}>
+          <ThemedStaticComponent />
+        </ThemeProvider>
+      </div>,
+      node
+    )
 
     expect(document.querySelectorAll('style').length).to.equal(1)
 
-    render(<div>
-      <ThemeProvider theme={ThemeA}>
-        <ThemedStaticComponent />
-      </ThemeProvider>
-      <ThemeProvider theme={ThemeB}>
-        <ThemedStaticComponent />
-      </ThemeProvider>
-    </div>, node)
+    render(
+      <div>
+        <ThemeProvider theme={ThemeA}>
+          <ThemedStaticComponent />
+        </ThemeProvider>
+        <ThemeProvider theme={ThemeB}>
+          <ThemedStaticComponent />
+        </ThemeProvider>
+      </div>,
+      node
+    )
 
     expect(document.querySelectorAll('style').length).to.equal(2)
   })
 
   it('two themed instances w/ dynamic props w/ same theme = 3 styles, different theme update = 4 styles', () => {
-    render(<div>
-      <ThemeProvider theme={ThemeA}>
-        <ThemedDynamicComponent backgroundColor="#fff" />
-      </ThemeProvider>
-      <ThemeProvider theme={ThemeA}>
-        <ThemedDynamicComponent backgroundColor="#fff" />
-      </ThemeProvider>
-    </div>, node)
+    render(
+      <div>
+        <ThemeProvider theme={ThemeA}>
+          <ThemedDynamicComponent backgroundColor="#fff" />
+        </ThemeProvider>
+        <ThemeProvider theme={ThemeA}>
+          <ThemedDynamicComponent backgroundColor="#fff" />
+        </ThemeProvider>
+      </div>,
+      node
+    )
 
     expect(document.querySelectorAll('style').length).to.equal(3)
 
-    render(<div>
-      <ThemeProvider theme={ThemeA}>
-        <ThemedDynamicComponent backgroundColor="#fff" />
-      </ThemeProvider>
-      <ThemeProvider theme={ThemeB}>
-        <ThemedDynamicComponent backgroundColor="#fff" />
-      </ThemeProvider>
-    </div>, node)
+    render(
+      <div>
+        <ThemeProvider theme={ThemeA}>
+          <ThemedDynamicComponent backgroundColor="#fff" />
+        </ThemeProvider>
+        <ThemeProvider theme={ThemeB}>
+          <ThemedDynamicComponent backgroundColor="#fff" />
+        </ThemeProvider>
+      </div>,
+      node
+    )
 
     expect(document.querySelectorAll('style').length).to.equal(4)
   })
 
   it('two themed instances wo/ dynamic props w/ different themes = 2 styles, same theme update = 1 style', () => {
-    render(<div>
-      <ThemeProvider theme={ThemeA}>
-        <ThemedStaticComponent />
-      </ThemeProvider>
-      <ThemeProvider theme={ThemeB}>
-        <ThemedStaticComponent />
-      </ThemeProvider>
-    </div>, node)
+    render(
+      <div>
+        <ThemeProvider theme={ThemeA}>
+          <ThemedStaticComponent />
+        </ThemeProvider>
+        <ThemeProvider theme={ThemeB}>
+          <ThemedStaticComponent />
+        </ThemeProvider>
+      </div>,
+      node
+    )
 
     expect(document.querySelectorAll('style').length).to.equal(2)
 
-    render(<div>
-      <ThemeProvider theme={ThemeA}>
-        <ThemedStaticComponent />
-      </ThemeProvider>
-      <ThemeProvider theme={ThemeA}>
-        <ThemedStaticComponent />
-      </ThemeProvider>
-    </div>, node)
+    render(
+      <div>
+        <ThemeProvider theme={ThemeA}>
+          <ThemedStaticComponent />
+        </ThemeProvider>
+        <ThemeProvider theme={ThemeA}>
+          <ThemedStaticComponent />
+        </ThemeProvider>
+      </div>,
+      node
+    )
 
     expect(document.querySelectorAll('style').length).to.equal(1)
   })
 
   it('two themed instances w/ dynamic props w/ different themes = 4 styles, same theme update = 3 styles', () => {
-    render(<div>
-      <ThemeProvider theme={ThemeA}>
-        <ThemedDynamicComponent backgroundColor="#fff" />
-      </ThemeProvider>
-      <ThemeProvider theme={ThemeB}>
-        <ThemedDynamicComponent backgroundColor="#fff" />
-      </ThemeProvider>
-    </div>, node)
+    render(
+      <div>
+        <ThemeProvider theme={ThemeA}>
+          <ThemedDynamicComponent backgroundColor="#fff" />
+        </ThemeProvider>
+        <ThemeProvider theme={ThemeB}>
+          <ThemedDynamicComponent backgroundColor="#fff" />
+        </ThemeProvider>
+      </div>,
+      node
+    )
 
     expect(document.querySelectorAll('style').length).to.equal(4)
 
-    render(<div>
-      <ThemeProvider theme={ThemeA}>
-        <ThemedDynamicComponent backgroundColor="#fff" />
-      </ThemeProvider>
-      <ThemeProvider theme={ThemeA}>
-        <ThemedDynamicComponent backgroundColor="#fff" />
-      </ThemeProvider>
-    </div>, node)
+    render(
+      <div>
+        <ThemeProvider theme={ThemeA}>
+          <ThemedDynamicComponent backgroundColor="#fff" />
+        </ThemeProvider>
+        <ThemeProvider theme={ThemeA}>
+          <ThemedDynamicComponent backgroundColor="#fff" />
+        </ThemeProvider>
+      </div>,
+      node
+    )
 
     expect(document.querySelectorAll('style').length).to.equal(3)
   })
@@ -278,7 +338,7 @@ describe('theming', () => {
   it('with JssProvider should render two different sheets', () => {
     const ComponentA = injectSheet(() => ({a: {color: 'red'}}))()
     const ComponentB = injectSheet(() => ({b: {color: 'green'}}))()
-    render((
+    render(
       <JssProvider jss={localJss}>
         <ThemeProvider theme={{}}>
           <div>
@@ -286,13 +346,17 @@ describe('theming', () => {
             <ComponentB />
           </div>
         </ThemeProvider>
-      </JssProvider>
-    ), node)
+      </JssProvider>,
+      node
+    )
 
     const styleTags = Array.from(document.querySelectorAll('style'))
     const innerText = x => x.innerText
     const trim = x => x.trim()
-    const actual = styleTags.map(innerText).map(trim).join('\n')
+    const actual = styleTags
+      .map(innerText)
+      .map(trim)
+      .join('\n')
 
     expect(actual).to.be(stripIndent`
       .a-0 {
@@ -330,7 +394,6 @@ describe('theming', () => {
     `)
   })
 
-
   describe('when theming object returned from createTheming is provided to injectSheet options', () => {
     it('allows nested ThemeProviders with custom namespace', () => {
       const themingA = createTheming('__THEME_A__')
@@ -359,16 +422,19 @@ describe('theming', () => {
       const ComponentA = injectSheet(styleA, {theming: themingA})(InnerComponentA)
       const ComponentB = injectSheet(styleB, {theming: themingB})(InnerComponentB)
 
-      render(<div>
-        <ThemeProviderA theme={ThemeA}>
-          <ThemeProviderB theme={ThemeB}>
-            <div>
-              <ComponentA />
-              <ComponentB />
-            </div>
-          </ThemeProviderB>
-        </ThemeProviderA>
-      </div>, node)
+      render(
+        <div>
+          <ThemeProviderA theme={ThemeA}>
+            <ThemeProviderB theme={ThemeB}>
+              <div>
+                <ComponentA />
+                <ComponentB />
+              </div>
+            </ThemeProviderB>
+          </ThemeProviderA>
+        </div>,
+        node
+      )
 
       expect(themeReceivedInComponentA).to.be(ThemeA)
       expect(themeReceivedInComponentB).to.be(ThemeB)

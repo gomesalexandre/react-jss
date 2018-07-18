@@ -55,10 +55,11 @@ const getStyles = (stylesOrCreator: StylesOrThemer, theme: Theme) => {
 }
 
 // Returns an object with array property as a key and true as a value.
-const toMap = arr => arr.reduce((map, prop) => {
-  map[prop] = true
-  return map
-}, {})
+const toMap = arr =>
+  arr.reduce((map, prop) => {
+    map[prop] = true
+    return map
+  }, {})
 
 const defaultInjectProps = {
   sheet: false,
@@ -103,7 +104,7 @@ export default function createHOC<P>(
       ...(isThemingEnabled && themeListener.contextTypes)
     }
     static propTypes = {
-      innerRef: PropTypes.func,
+      innerRef: PropTypes.func
     }
     static defaultProps = defaultProps
 
@@ -141,7 +142,7 @@ export default function createHOC<P>(
 
     componentDidUpdate(prevProps: Props, prevState: State) {
       // We remove previous dynamicSheet only after new one was created to avoid FOUC.
-      if (prevState.dynamicSheet !== this.state.dynamicSheet) {
+      if (prevState.dynamicSheet !== this.state.dynamicSheet && prevState.dynamicSheet) {
         this.jss.removeStyleSheet(prevState.dynamicSheet)
       }
     }
@@ -167,7 +168,6 @@ export default function createHOC<P>(
 
       let classNamePrefix = defaultClassNamePrefix
       let staticSheet = this.manager.get(theme)
-      let dynamicStyles
 
       if (contextSheetOptions && contextSheetOptions.classNamePrefix) {
         classNamePrefix = contextSheetOptions.classNamePrefix + classNamePrefix
@@ -182,10 +182,10 @@ export default function createHOC<P>(
           classNamePrefix
         })
         this.manager.add(theme, staticSheet)
-        dynamicStyles = compose(staticSheet.classes, getDynamicStyles(styles))
-        staticSheet[dynamicStylesNs] = dynamicStyles
+        staticSheet[dynamicStylesNs] = getDynamicStyles(styles)
       }
-      else dynamicStyles = staticSheet[dynamicStylesNs]
+
+      const dynamicStyles = staticSheet[dynamicStylesNs]
 
       if (dynamicStyles) {
         dynamicSheet = this.jss.createStyleSheet(dynamicStyles, {
@@ -197,9 +197,20 @@ export default function createHOC<P>(
         })
       }
 
-      const sheet = dynamicSheet || staticSheet
-      const defaultClasses = InnerComponent.defaultProps ? InnerComponent.defaultProps.classes : {}
-      const classes = {...defaultClasses, ...sheet.classes, ...userClasses}
+      const defaultClasses = InnerComponent.defaultProps
+        ? InnerComponent.defaultProps.classes
+        : undefined
+      const jssClasses = dynamicSheet
+        ? compose(
+            staticSheet.classes,
+            dynamicSheet.classes
+          )
+        : staticSheet.classes
+      const classes = {
+        ...defaultClasses,
+        ...jssClasses,
+        ...userClasses
+      }
 
       return {theme, dynamicSheet, classes}
     }
@@ -215,9 +226,7 @@ export default function createHOC<P>(
       if (registry) registry.add(staticSheet)
 
       if (dynamicSheet) {
-        dynamicSheet
-          .update(this.props)
-          .attach()
+        dynamicSheet.update(this.props).attach()
         if (registry) registry.add(dynamicSheet)
       }
     }

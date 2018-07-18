@@ -10,9 +10,7 @@ describe('dynamic styles', () => {
     let MyComponent
 
     beforeEach(() => {
-      const InnerComponent = ({classes}) => (
-        <div className={`${classes.button} ${classes.left}`} />
-      )
+      const InnerComponent = ({classes}) => <div className={`${classes.button} ${classes.left}`} />
 
       MyComponent = injectSheet({
         left: {
@@ -161,9 +159,7 @@ describe('dynamic styles', () => {
     let MyComponent
 
     beforeEach(() => {
-      const InnerComponent = ({classes}) => (
-        <div className={`${classes.button} ${classes.left}`} />
-      )
+      const InnerComponent = ({classes}) => <div className={`${classes.button} ${classes.left}`} />
 
       MyComponent = injectSheet({
         left: {

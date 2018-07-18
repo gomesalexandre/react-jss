@@ -22,7 +22,7 @@ type NoRendererProps = {
   children?: React.Node
 };
 
-const NoRenderer = <P: NoRendererProps>({children}: P) => (children || null)
+const NoRenderer = <P: NoRendererProps>({children}: P) => children || null
 
 /**
  * HOC creator function that wrapps the user component.

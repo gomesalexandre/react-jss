@@ -2,35 +2,23 @@ import expect from 'expect.js'
 import compose from './compose'
 
 describe('compose', () => {
-  it('should compose fn values', () => {
-    const height = () => {}
-    const classes = {left: 'a', button: 'b'}
-    const styles = {button: {height}}
-    const composed = compose(classes, styles)
+  it('should compose two class objects', () => {
+    const staticClasses = {
+      a: 'a',
+      b: 'b'
+    }
+    const dynamicClasses = {
+      b: 'b2',
+      c: 'c'
+    }
+    const composed = compose(
+      staticClasses,
+      dynamicClasses
+    )
     expect(composed).to.eql({
-      button: {
-        height,
-        composes: 'b'
-      },
-      left: {
-        composes: 'a'
-      }
-    })
-  })
-
-  it('should compose fn rules', () => {
-    const rule = () => {}
-    const classes = {left: 'a', button: 'b'}
-    const styles = {button: rule}
-    const composed = compose(classes, styles)
-    expect(composed).to.eql({
-      button: {
-        extend: rule,
-        composes: 'b'
-      },
-      left: {
-        composes: 'a'
-      }
+      a: 'a',
+      b: 'b b2',
+      c: 'c'
     })
   })
 })
