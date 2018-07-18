@@ -19,10 +19,10 @@ import type {Options, StylesOrThemer} from './types'
 let indexCounter = -100000
 
 type NoRendererProps = {
-  children: ?React.Element<*>
+  children?: React.Node
 };
 
-const NoRenderer = ({children}: NoRendererProps) => (children || null)
+const NoRenderer = <P: NoRendererProps>({children}: P) => (children || null)
 
 /**
  * HOC creator function that wrapps the user component.
@@ -31,11 +31,17 @@ const NoRenderer = ({children}: NoRendererProps) => (children || null)
  *
  * @api public
  */
-export default function injectSheet(stylesOrSheet: StylesOrThemer, options: Options = {}) {
+
+type StylesInjector<P, C: React$ComponentType<P>> = (InnerComponent: C) =>
+  React$ComponentType<$Diff<P, {classes: {}}>>;
+export default function injectSheet<P, C:React$ComponentType<P>>(
+    stylesOrSheet: StylesOrThemer,
+    options: Options = {}
+): StylesInjector<P, C> {
   if (options.index === undefined) {
     options.index = indexCounter++
   }
-  function injector<P: any>(InnerComponent: React$ComponentType<P> = NoRenderer) {
+  function injector<P>(InnerComponent: React.ComponentType<P> = NoRenderer) { //eslint-disable-line
     const Jss = createHoc(stylesOrSheet, InnerComponent, options)
     return hoistNonReactStatics(Jss, InnerComponent, {inner: true})
   }

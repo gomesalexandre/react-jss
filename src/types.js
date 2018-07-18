@@ -1,8 +1,13 @@
 // @flow
-import {JssSheet} from './jss'
+import {JssSheet, create} from './jss'
 
 export type Options = {
-  ...JssSheet.options
+  ...JssSheet.options,
+  theming: {
+    themeListener: any => any,
+  },
+  inject: Array<'classes' | 'themes' | 'sheet'>,
+  jss: create
 };
 export type Theme = {};
 export type Styles = {[string]: {}};

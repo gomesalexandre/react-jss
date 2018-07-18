@@ -34,14 +34,11 @@ const dynamicStylesNs = Math.random()
  *
  */
 
-type DefaultProps = {
-  classes: {}
-};
 type Props = {
   classes: ?{},
   innerRef?: () => {},
   theme?: Theme,
-  sheet: {}
+  sheet?: {}
 };
 type State = {
   theme: Theme,
@@ -79,7 +76,11 @@ let managersCounter = 0
  * @param {Object} [options]
  * @return {Component}
  */
-export default (stylesOrCreator: StylesOrThemer, InnerComponent: any, options: Options = {}) => {
+export default function createHOC<P>(
+    stylesOrCreator: StylesOrThemer,
+    InnerComponent: ComponentType<P>,
+    options: Options = {}
+): ComponentType<$Diff<P, {classes: {}}>> {
   const isThemingEnabled = typeof stylesOrCreator === 'function'
   const {theming = defaultTheming, inject, jss: optionsJss, ...sheetOptions} = options
   const injectMap = inject ? toMap(inject) : defaultInjectProps
@@ -89,7 +90,8 @@ export default (stylesOrCreator: StylesOrThemer, InnerComponent: any, options: O
   const noTheme = {}
   const managerId = managersCounter++
   const manager = new SheetsManager()
-  const defaultProps: DefaultProps = {...InnerComponent.defaultProps}
+  // $FlowFixMe defaultProps are not defined in React$Component
+  const defaultProps: Props = {...InnerComponent.defaultProps}
   delete defaultProps.classes
 
   class Jss extends Component<Props, State> {
@@ -105,7 +107,7 @@ export default (stylesOrCreator: StylesOrThemer, InnerComponent: any, options: O
     }
     static defaultProps = defaultProps
 
-    constructor(props: Props, context: any) {
+    constructor(props: Props, context: {}) {
       super(props, context)
       const theme = isThemingEnabled ? themeListener.initial(context) : noTheme
 
@@ -122,7 +124,7 @@ export default (stylesOrCreator: StylesOrThemer, InnerComponent: any, options: O
       }
     }
 
-    componentWillReceiveProps(nextProps: Props, nextContext: ComponentType<Props>) {
+    componentWillReceiveProps(nextProps: Props, nextContext: {}) {
       this.context = nextContext
       const {dynamicSheet} = this.state
       if (dynamicSheet) dynamicSheet.update(nextProps)
